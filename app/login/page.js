@@ -1,10 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [message, setMessage] = useState("");
+
+    const router  = useRouter();
 
     const handleChange = (e) => {
         setFormData({
@@ -28,8 +31,20 @@ export default function LoginPage() {
                 }
             )
             const data = await response.json();
-            setMessage(data.message);
-            console.log("Login response", data);
+            if(!response.ok) {
+                setMessage(data.message);
+                return;
+            }
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(data.data)
+            )
+            if(data.data.role === "ADMIN") {
+                router.push("/dashboard/admin");
+            } else {
+                router.push("/dashboard/employee")
+            }
             
         } catch (error) {
             console.log(error);
