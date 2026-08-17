@@ -11,10 +11,19 @@ export default function AdminDashboard() {
     useEffect(() => {
       const savedUser = localStorage.getItem("user");
 
-        if (savedUser) {
-            setUser(JSON.parse(savedUser));
+        if (!savedUser) {
+            router.push("/login");
+            return;
         }
-    }, []);
+
+        const userData = JSON.parse(savedUser);
+        if (userData.role !== "ADMIN") {
+            router.push("/login");
+            return;
+        }
+        setUser(userData);
+
+    }, [router]);
 
     const handleLogout = () => {
         localStorage.removeItem("user");

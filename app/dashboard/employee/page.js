@@ -11,10 +11,20 @@ export default function EmployeeDashboard() {
     useEffect(() => {
       const savedUSer = localStorage.getItem("user");
 
-      if(savedUSer) {
-        setUser(JSON.parse(savedUSer));
-      }
-    }, []);
+      if (!savedUser) {
+            router.push("/login");
+            return;
+        }
+
+        const userData = JSON.parse(savedUser);
+
+        if (userData.role !== "EMPLOYEE") {
+            router.push("/login");
+            return;
+        }
+
+        setUser(userData);
+    }, [router]);
 
     const handleLogout = () => {
         localStorage.removeItem("user");
