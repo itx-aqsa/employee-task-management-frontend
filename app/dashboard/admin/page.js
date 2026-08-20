@@ -85,6 +85,11 @@ export default function AdminDashboard() {
                     </div>
 
                 </div>
+                <button onClick={() => router.push("/dashboard/admin/tasks/create")}
+                    className="mt-8 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700"
+                >
+                    + Create Task
+                </button>
 
             </div>
 

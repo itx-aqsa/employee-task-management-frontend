@@ -9,7 +9,7 @@ export default function EmployeeDashboard() {
     const router = useRouter();
 
     useEffect(() => {
-      const savedUSer = localStorage.getItem("user");
+      const savedUser = localStorage.getItem("user");
 
       if (!savedUser) {
             router.push("/login");
