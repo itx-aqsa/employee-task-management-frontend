@@ -9,24 +9,50 @@ export default function AdminDashboard() {
     const router = useRouter();
 
     useEffect(() => {
-      const savedUser = localStorage.getItem("user");
+      const token = localStorage.getItem("token");
 
-        if (!savedUser) {
+        if (!token) {
             router.push("/login");
             return;
         }
 
-        const userData = JSON.parse(savedUser);
-        if (userData.role !== "ADMIN") {
-            router.push("/login");
-            return;
-        }
-        setUser(userData);
+        const getProfile = async () => {
+            try {
+                const response = await fetch(
+                    "http://localhost:5000/users/profile",
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                )
+
+                const data = await response.json();
+                if(!response.ok) {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("role");
+                    router.push("/login");
+                    return;
+                }
+
+                if (data.data.role !== "ADMIN") {
+                    router.push("/login");
+                    return;
+                }
+                setUser(data.data);
+            } catch (error) {
+                console.log(error);
+                router.push("/login");
+            }
+        }  
+        getProfile();
 
     }, [router]);
 
     const handleLogout = () => {
-        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
         router.push("/login");
     };
     
@@ -40,13 +66,12 @@ export default function AdminDashboard() {
                             Admin Dashboard
                         </h1>
                         {user && (
-                            <div className="mt-1">
-                                <p className="text-gray-500 text-sm">
-                                    Welcome back, <span className="font-semibold text-gray-700">{user.name}</span>
-                                </p>
-                            </div>
+                            <p className="text-gray-500 text-sm mt-1">
+                                Welcome back, {user.name}
+                            </p>
                         )}
                     </div>
+
                     <button onClick={handleLogout} className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200">
                         Logout
                     </button>

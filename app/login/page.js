@@ -30,26 +30,27 @@ export default function LoginPage() {
                     body: JSON.stringify(formData)
                 }
             )
+
             const data = await response.json();
             if(!response.ok) {
                 setMessage(data.message);
                 return;
             }
 
-            localStorage.setItem(
-                "user",
-                JSON.stringify(data.data)
-            )
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("role", data.data.role);
+
             if(data.data.role === "ADMIN") {
                 router.push("/dashboard/admin");
-            } else {
+            } else if (data.data.role === "EMPLOYEE") {
                 router.push("/dashboard/employee")
+            } else {
+                setMessage("Invalid user role");
             }
             
         } catch (error) {
             console.log(error);
-            setMessage("Something went wrong");          
-            
+            setMessage("Something went wrong");                     
         }
     };
 
