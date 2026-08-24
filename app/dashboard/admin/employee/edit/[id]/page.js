@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
-export default function CreateTask() {
-
-    const [employees, setEmployees] = useState([]);
-    const [formData, setFormData] = useState({ title: "", description: "", priority: "MEDIUM", userId: "" });
-    const [message, setMessage] = useState("");
+export default function EditEmployee() {
     
+    const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(true);
+    
+    const params = useParams();
     const router = useRouter();
 
     useEffect(() => {
@@ -18,11 +19,12 @@ export default function CreateTask() {
             return;
         }
 
-        const getEmployees = async () => {
+        const getEmployee = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:5000/users/employees",
+                    `http://localhost:5000/users/${params.id}`,
                     {
+                        method: "GET",
                         headers: {
                             "Authorization": `Bearer ${token}`
                         }
@@ -32,18 +34,26 @@ export default function CreateTask() {
                 const data = await response.json();
                 if (!response.ok) {
                     setMessage(data.message);
+                    setLoading(false);
                     return;
                 }
-                setEmployees(data.data);
+
+                setFormData({
+                    name: data.data.name,
+                    email: data.data.email,
+                    password: ""
+                });
+                setLoading(false);
 
             } catch (error) {
                 console.log(error);
                 setMessage("Something went wrong");
+                setLoading(false);
             }
         };
-        getEmployees();
+        getEmployee();
 
-    }, [router]);
+    }, [params.id, router]);
 
     const handleChange = (e) => {
         setFormData({
@@ -62,17 +72,14 @@ export default function CreateTask() {
             }
 
             const response = await fetch(
-                "http://localhost:5000/tasks",
+                `http://localhost:5000/users/${params.id}`,
                 {
-                    method: "POST",
+                    method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     },
-                    body: JSON.stringify({
-                        ...formData,
-                        userId: Number(formData.userId)
-                    })
+                    body: JSON.stringify(formData)
                 }
             );
 
@@ -81,9 +88,7 @@ export default function CreateTask() {
                 setMessage(data.message);
                 return;
             }
-
-            setMessage("Task created successfully");
-            setFormData({ title: "", description: "", priority: "MEDIUM", userId: "" });
+            setMessage("Employee updated successfully");
 
         } catch (error) {
             console.log(error);
@@ -91,104 +96,68 @@ export default function CreateTask() {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+                <p className="text-gray-600">
+                    Loading...
+                </p>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="max-w-xl mx-auto">
                 <div className="bg-white rounded-xl shadow p-8">
                     <h1 className="text-2xl font-bold text-gray-800">
-                        Create Task
+                        Edit Employee
                     </h1>
                     <p className="text-gray-500 mt-1">
-                        Assign a task to an employee
+                        Update employee information
                     </p>
 
                     <form onSubmit={handleSubmit} className="mt-6 space-y-5">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Task Title
+                                Name
+                            </label>
+                            <input type="text" name="name"
+                                value={formData.name} onChange={handleChange}
+                                className="w-full text-black border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Email
                             </label>
                             <input
-                                type="text" name="title"
-                                value={formData.title} onChange={handleChange}
-                                placeholder="Enter task title"
+                                type="email" name="email"
+                                value={formData.email} onChange={handleChange}
                                 className="w-full text-black border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Description
+                                New Password
                             </label>
-                            <textarea
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                placeholder="Enter task description"
-                                rows="4"
+                            <input
+                                type="password" name="password"
+                                value={formData.password} onChange={handleChange}
+                                placeholder="Leave empty to keep current password"
                                 className="w-full text-black border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Priority
-                            </label>
-                            <select
-                                name="priority"
-                                value={formData.priority}
-                                onChange={handleChange}
-                                className="w-full text-black border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-
-                                <option value="LOW">
-                                    Low
-                                </option>
-
-                                <option value="MEDIUM">
-                                    Medium
-                                </option>
-
-                                <option value="HIGH">
-                                    High
-                                </option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Assign To
-                            </label>
-                            <select
-                                name="userId"
-                                value={formData.userId}
-                                onChange={handleChange}
-                                className="w-full text-black border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-
-                                <option value="">
-                                    Select Employee
-                                </option>
-
-                                {employees.map((employee) => (
-
-                                    <option
-                                        key={employee.id}
-                                        value={employee.id}
-                                    >
-                                        {employee.name} - {employee.email}
-                                    </option>
-
-                                ))}
-                            </select>
-                        </div>
 
                         <div className="flex gap-3">
                             <button type="submit" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700">
-                                Create Task
+                                Update Employee
                             </button>
 
-                            <button type="button"
-                                onClick={() => router.push("/dashboard/admin")}
+                            <button type="button" onClick={() => router.push("/dashboard/admin")}
                                 className="bg-gray-200 text-gray-700 px-5 py-2.5 rounded-lg hover:bg-gray-300"
                             >
                                 Cancel
