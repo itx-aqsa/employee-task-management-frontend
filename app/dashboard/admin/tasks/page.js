@@ -42,6 +42,41 @@ export default function TasksPage() {
         getTasks();
     }, [router]);
 
+    const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this task?");
+        if(!confirmDelete) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(
+                `http://localhost:5000/tasks/${id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            )
+
+            const data = await response.json();
+            if(!response.ok) {
+                setMessage(data.message);
+                return;
+            }
+
+            setMessage(data.message);
+            setTasks((previousTasks) => {
+                return previousTasks.filter((task) => task.id !== id)
+            })
+        } catch (error) {
+            console.log(error);
+            setMessage("Something went wrong")
+        }
+    }
+
+
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="max-w-6xl mx-auto">
@@ -85,6 +120,9 @@ export default function TasksPage() {
                                     <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
                                         Status
                                     </th>
+                                    <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
 
@@ -113,22 +151,40 @@ export default function TasksPage() {
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <span className="text-sm font-medium">
+                                            <span className="text-sm font-medium text-gray-800">
                                                 {task.priority}
                                             </span>
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <span className="text-sm font-medium">
+                                            <span className="text-sm font-medium text-gray-800">
                                                 {task.status}
                                             </span>
+                                        </td>
+
+                                        <td className="px-6 py-4">
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => router.push(`/dashboard/admin/tasks/edit/${task.id}`) }
+                                                    className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 text-sm"
+                                                >
+                                                    Edit
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleDelete(task.id)}
+                                                    className="bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 text-sm"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
 
                                 {tasks.length === 0 && (
                                     <tr>
-                                        <td colSpan="4" className="text-center py-10 text-gray-500">
+                                        <td colSpan="5" className="text-center py-10 text-gray-500">
                                             No tasks found
                                         </td>
                                     </tr>
