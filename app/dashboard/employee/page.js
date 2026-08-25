@@ -54,6 +54,41 @@ export default function EmployeeDashboard() {
         getMyTasks();
     }, [router]);
 
+    const handleStatusChange = async (taskId, newStatus) => {
+    try {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(
+            `http://localhost:5000/tasks/${taskId}/status`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            }
+        );
+
+        const data = await response.json();
+        if (!response.ok) {
+            setMessage(data.message);
+            return;
+        }
+        setTasks((previousTasks) =>
+            previousTasks.map((task) =>
+                task.id === taskId ? { ...task, status: newStatus } : task
+            )
+        );
+        setMessage("Task status updated successfully");
+        } catch (error) {
+            console.log(error);
+            setMessage("Something went wrong");
+        }
+    };
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -136,9 +171,22 @@ export default function EmployeeDashboard() {
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-4">
-                                                    <span className="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-700">
-                                                        {task.status}
-                                                    </span>
+                                                    <select value={task.status}
+                                                        onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                                                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+                                                    >
+                                                        <option value="PENDING">
+                                                            Pending
+                                                        </option>
+
+                                                        <option value="IN_PROGRESS">
+                                                            In Progress
+                                                        </option>
+
+                                                        <option value="COMPLETED">
+                                                            Completed
+                                                        </option>
+                                                    </select>
                                                 </td>
                                             </tr>
                                         ))}
