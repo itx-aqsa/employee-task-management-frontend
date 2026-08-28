@@ -127,7 +127,7 @@ export default function AdminDashboard() {
     }
 
     const handleDelete = async (id) => {
-        const confirmDelete = window.confirm("Are you sure you wnat to delete this employee?");
+        const confirmDelete = window.confirm("Are you sure you want to delete this employee?");
         if(!confirmDelete) {
             return;
         }
@@ -230,9 +230,7 @@ export default function AdminDashboard() {
                 </button>
 
                 <div className="bg-white rounded-xl shadow p-6 mt-8">
-
                     <div className="flex items-center justify-between">
-
                         <div>
                             <h2 className="text-xl font-bold text-gray-800">
                                 Employees
@@ -251,27 +249,19 @@ export default function AdminDashboard() {
                         >
                             + Add Employee
                         </button>
-
                     </div>
 
-
                     <div className="mt-6 space-y-3">
-
                         {employees.length === 0 ? (
-
                             <p className="text-gray-500">
                                 No employees found
                             </p>
-
                         ) : (
-
                             employees.map((employee) => (
-
                                 <div
                                     key={employee.id}
                                     className="border border-gray-200 rounded-lg p-4 flex items-center justify-between"
                                 >
-
                                     <div>
                                         <p className="font-semibold text-gray-800">
                                             {employee.name}
@@ -282,9 +272,7 @@ export default function AdminDashboard() {
                                         </p>
                                     </div>
 
-
                                     <div className="flex gap-2">
-
                                         <button
                                             onClick={() =>
                                                 router.push(
@@ -296,30 +284,19 @@ export default function AdminDashboard() {
                                             Edit
                                         </button>
 
-
                                         <button
                                             onClick={() => handleDelete(employee.id)}
                                             className="text-red-600 border border-red-200 rounded-md px-3 py-1 hover:bg-red-50"
                                         >
                                             Delete
                                         </button>
-
                                     </div>
-
                                 </div>
-
                             ))
-
                         )}
-
                     </div>
-
-                </div>
-
-                
-
+                </div>              
             </div>
-
         </div>
     );
 }
