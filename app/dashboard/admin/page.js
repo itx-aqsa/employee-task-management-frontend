@@ -17,7 +17,6 @@ export default function AdminDashboard() {
 
     useEffect(() => {
       const token = localStorage.getItem("token");
-
         if (!token) {
             router.push("/login");
             return;
@@ -57,7 +56,6 @@ export default function AdminDashboard() {
             }
         }  
         getProfile();
-
     }, [router]);
 
     const handleLogout = () => {
@@ -230,9 +228,7 @@ export default function AdminDashboard() {
                 </button>
 
                 <div className="bg-white rounded-xl shadow p-6 mt-8">
-
                     <div className="flex items-center justify-between">
-
                         <div>
                             <h2 className="text-xl font-bold text-gray-800">
                                 Employees
@@ -253,7 +249,6 @@ export default function AdminDashboard() {
                         </button>
 
                     </div>
-
 
                     <div className="mt-6 space-y-3">
 
@@ -282,44 +277,36 @@ export default function AdminDashboard() {
                                         </p>
                                     </div>
 
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-sm text-gray-500">
+                                            {employee._count?.tasks ?? 0}{" "}
+                                            {employee._count?.tasks === 1 ? "Task" : "Tasks"}
+                                        </span>
 
-                                    <div className="flex gap-2">
+                                        <div className="flex gap-2">                                            
+                                            <button
+                                                onClick={() =>
+                                                    router.push(`/dashboard/admin/employee/edit/${employee.id}`)
+                                                }
+                                                className="text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50"
+                                            >
+                                                Edit
+                                            </button>
 
-                                        <button
-                                            onClick={() =>
-                                                router.push(
-                                                    `/dashboard/admin/employee/edit/${employee.id}`
-                                                )
-                                            }
-                                            className="text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50"
-                                        >
-                                            Edit
-                                        </button>
-
-
-                                        <button
-                                            onClick={() => handleDelete(employee.id)}
-                                            className="text-red-600 border border-red-200 rounded-md px-3 py-1 hover:bg-red-50"
-                                        >
-                                            Delete
-                                        </button>
-
+                                            <button
+                                                onClick={() => handleDelete(employee.id)}
+                                                className="text-red-600 border border-red-200 rounded-md px-3 py-1 hover:bg-red-50"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
-
                                 </div>
-
                             ))
-
                         )}
-
                     </div>
-
-                </div>
-
-                
-
+                </div>             
             </div>
-
         </div>
     );
 }
