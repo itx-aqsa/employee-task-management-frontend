@@ -11,25 +11,21 @@ export default function TasksPage() {
     const router = useRouter();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            router.push("/login");
-            return;
-        }
-
         const getTasks = async () => {
             try {
                 const response = await fetch(
                     "http://localhost:5000/tasks",
                     {
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
+                        credentials: "include",
                     }
                 );
 
                 const data = await response.json();
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        router.push("/login");
+                        return;
+                    }
                     setMessage(data.message);
                     return;
                 }
@@ -49,14 +45,11 @@ export default function TasksPage() {
         }
 
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(
                 `http://localhost:5000/tasks/${id}`,
                 {
                     method: "DELETE",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
+                    credentials: "include",
                 }
             )
 

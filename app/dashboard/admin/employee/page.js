@@ -11,22 +11,13 @@ export default function EmployeeDashboard() {
     const router = useRouter();
 
     useEffect(() => {
-      const token = localStorage.getItem("token");
-
-        if (!token) {
-            router.push("/login");
-            return;
-        }
-
-        const getDashbaord = async () => {
+        const getDashboard = async () => {
             try {
                 const response = await fetch(
                     "http://localhost:5000/users/employee-dashboard",
                     {
                         method: "GET",
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
+                        credentials: "include",
                     }
                 )
 
@@ -45,12 +36,18 @@ export default function EmployeeDashboard() {
                 setMessage("Something went wrong");
             }
         }
-        getDashbaord();
+        getDashboard();
     }, [router]);
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+    const handleLogout = async () => {
+        try {
+            await fetch("http://localhost:5000/users/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+        } catch (error) {
+            console.log(error);
+        }
         router.push("/login");
     };    
 

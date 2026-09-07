@@ -15,20 +15,12 @@ export default function EditTaskPage() {
     const taskId = params.id;
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            router.push("/login");
-            return;
-        }
-
         const getData = async () => {
             try {
                 const employeeResponse = await fetch(
                     "http://localhost:5000/users/employees",
                     {
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
+                        credentials: "include",
                     }
                 );
 
@@ -42,9 +34,7 @@ export default function EditTaskPage() {
                 const taskResponse = await fetch(
                     `http://localhost:5000/tasks/${taskId}`,
                     {
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
+                        credentials: "include",
                     }
                 );
 
@@ -81,17 +71,14 @@ export default function EditTaskPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(
                 `http://localhost:5000/tasks/${taskId}`,
                 {
                     method: "PUT",
-
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
                     },
-
+                    credentials: "include",
                     body: JSON.stringify({
                         title: formData.title,
                         description: formData.description,

@@ -27,6 +27,7 @@ export default function LoginPage() {
                     headers: {
                         "Content-Type": "application/json"
                     },
+                    credentials: "include",
                     body: JSON.stringify(formData)
                 }
             )
@@ -36,9 +37,6 @@ export default function LoginPage() {
                 setMessage(data.message);
                 return;
             }
-
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify(data.data));
 
             if(data.data.role === "ADMIN") {
                 router.push("/dashboard/admin");

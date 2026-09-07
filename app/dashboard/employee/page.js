@@ -12,37 +12,43 @@ export default function EmployeeDashboard() {
     const router = useRouter();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const savedUser = localStorage.getItem("user");
-        if (!savedUser || !token) {
-            router.push("/login");
-            return;
-        }
-
-        const userData = JSON.parse(savedUser);
-        if(userData.role !== "EMPLOYEE") {
-            router.push("/login");
-            return;
-        }
-        setUser(userData);
-
-        const getMyTasks = async () => {
+        const init = async () => {
             try {
-                const response = await fetch(
-                    "http://localhost:5000/tasks/my-tasks",
+                // Verify auth and get profile
+                const profileResponse = await fetch(
+                    "http://localhost:5000/users/profile",
                     {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
+                        method: "GET",
+                        credentials: "include",
                     }
                 );
 
-                const data = await response.json();
-                if (!response.ok) {
-                    setMessage(data.message);
+                const profileData = await profileResponse.json();
+                if (!profileResponse.ok) {
+                    router.push("/login");
                     return;
                 }
-                setTasks(data.data);
+
+                if (profileData.data.role !== "EMPLOYEE") {
+                    router.push("/login");
+                    return;
+                }
+                setUser(profileData.data);
+
+                // Fetch tasks
+                const tasksResponse = await fetch(
+                    "http://localhost:5000/tasks/my-tasks",
+                    {
+                        credentials: "include",
+                    }
+                );
+
+                const tasksData = await tasksResponse.json();
+                if (!tasksResponse.ok) {
+                    setMessage(tasksData.message);
+                    return;
+                }
+                setTasks(tasksData.data);
             } catch (error) {
                 console.log(error);
                 setMessage("Something went wrong");
@@ -51,47 +57,51 @@ export default function EmployeeDashboard() {
             }
         };
 
-        getMyTasks();
+        init();
     }, [router]);
 
     const handleStatusChange = async (taskId, newStatus) => {
-    try {
-        const token = localStorage.getItem("token");
+        try {
+            const response = await fetch(
+                `http://localhost:5000/tasks/${taskId}/status`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        status: newStatus
+                    })
+                }
+            );
 
-        const response = await fetch(
-            `http://localhost:5000/tasks/${taskId}/status`,
-            {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    status: newStatus
-                })
+            const data = await response.json();
+            if (!response.ok) {
+                setMessage(data.message);
+                return;
             }
-        );
-
-        const data = await response.json();
-        if (!response.ok) {
-            setMessage(data.message);
-            return;
-        }
-        setTasks((previousTasks) =>
-            previousTasks.map((task) =>
-                task.id === taskId ? { ...task, status: newStatus } : task
-            )
-        );
-        setMessage("Task status updated successfully");
+            setTasks((previousTasks) =>
+                previousTasks.map((task) =>
+                    task.id === taskId ? { ...task, status: newStatus } : task
+                )
+            );
+            setMessage("Task status updated successfully");
         } catch (error) {
             console.log(error);
             setMessage("Something went wrong");
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+    const handleLogout = async () => {
+        try {
+            await fetch("http://localhost:5000/users/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+        } catch (error) {
+            console.log(error);
+        }
         router.push("/login");
     };
 

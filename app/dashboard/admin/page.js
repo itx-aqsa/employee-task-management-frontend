@@ -15,29 +15,19 @@ export default function AdminDashboard() {
 
     const router = useRouter();
 
-    useEffect(() => {
-      const token = localStorage.getItem("token");
-        if (!token) {
-            router.push("/login");
-            return;
-        }
-
+    useEffect(() => {      
         const getProfile = async () => {
             try {
                 const response = await fetch(
                     "http://localhost:5000/users/profile",
                     {
                         method: "GET",
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
+                        credentials: "include"
                     }
                 )
 
                 const data = await response.json();
                 if(!response.ok) {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("role");
                     router.push("/login");
                     return;
                 }
@@ -58,27 +48,31 @@ export default function AdminDashboard() {
         getProfile();
     }, [router]);
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("role");
-        router.push("/login");
+    const handleLogout = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/users/logout", {
+                method: "POST",
+                credentials: "include"
+            })
+
+            const data = await response.json();
+            if(response.ok) {
+                router.push("/login");
+            } else {
+                console.log(data.message);                
+            }
+        } catch (error) {
+            console.log(error);            
+        }
     };
 
     const getEmployee = async () => {
         try {
-            const token = localStorage.getItem("token");
-            if(!token) {
-                router.push("/login");
-                return;
-            }
-
             const response = await fetch(
                 "http://localhost:5000/users/employees",
                 {
                     method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
+                    credentials: "include"
                 }
             )
 
@@ -96,19 +90,11 @@ export default function AdminDashboard() {
 
     const getDashboardStats = async () => {
         try {
-            const token = localStorage.getItem("token");
-            if(!token) {
-                router.push("/login");
-                return;
-            }
-
             const response = await fetch(
                 "http://localhost:5000/users/dashboard-stats",
                 {
                     method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
+                    credentials: "include"
                 }
             )
 
@@ -131,19 +117,11 @@ export default function AdminDashboard() {
         }
 
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                router.push("/login");
-                return;
-            }
-
             const response = await fetch(
                 `http://localhost:5000/users/${id}`,
                 {
                     method: "DELETE",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
+                    credentials: "include"
                 }
             );
 

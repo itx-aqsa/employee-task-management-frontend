@@ -21,20 +21,14 @@ export default function CreateEmployee() {
         e.preventDefault();
 
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                router.push("/login");
-                return;
-            }
-
             const response = await fetch(
                 "http://localhost:5000/users",
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        // "Authorization": `Bearer ${token}`
                     },
+                    credentials: "include",
                     body: JSON.stringify(formData)
                 }
             );

@@ -13,21 +13,13 @@ export default function EditEmployee() {
     const router = useRouter();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            router.push("/login");
-            return;
-        }
-
         const getEmployee = async () => {
             try {
                 const response = await fetch(
                     `http://localhost:5000/users/${params.id}`,
                     {
                         method: "GET",
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
+                        credentials: "include",
                     }
                 );
 
@@ -65,20 +57,14 @@ export default function EditEmployee() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                router.push("/login");
-                return;
-            }
-
             const response = await fetch(
                 `http://localhost:5000/users/${params.id}`,
                 {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
                     },
+                    credentials: "include",
                     body: JSON.stringify(formData)
                 }
             );
