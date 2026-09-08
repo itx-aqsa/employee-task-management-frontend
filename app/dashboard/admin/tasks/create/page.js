@@ -69,10 +69,7 @@ export default function CreateTask() {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     },
-                    body: JSON.stringify({
-                        ...formData,
-                        userId: Number(formData.userId)
-                    })
+                    body: JSON.stringify(formData)
                 }
             );
 
