@@ -123,12 +123,20 @@ export default function EmployeeDashboard() {
                             </p>
                         )}
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200"
-                    >
-                        Logout
-                    </button>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => router.push("/dashboard/employee/kanban")}
+                            className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                        >
+                            Kanban Board
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6 mt-8">

@@ -83,11 +83,19 @@ export default function TasksPage() {
                         </p>
                     </div>
 
-                    <button onClick={() => router.push("/dashboard/admin/tasks/create") }
-                        className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700"
-                    >
-                        + Create Task
-                    </button>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => router.push("/dashboard/admin/tasks/kanban")}
+                            className="bg-purple-600 text-white px-5 py-2.5 rounded-lg hover:bg-purple-700"
+                        >
+                            Kanban View
+                        </button>
+                        <button onClick={() => router.push("/dashboard/admin/tasks/create")}
+                            className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700"
+                        >
+                            + Create Task
+                        </button>
+                    </div>
                 </div>
 
                 {message && (

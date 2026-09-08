@@ -205,6 +205,13 @@ export default function AdminDashboard() {
                     View Tasks
                 </button>
 
+                <button
+                    onClick={() => router.push("/dashboard/admin/tasks/kanban")}
+                    className="mt-8 ml-3 bg-purple-600 text-white px-5 py-2.5 rounded-lg hover:bg-purple-700"
+                >
+                    Kanban Board
+                </button>
+
                 <div className="bg-white rounded-xl shadow p-6 mt-8">
                     <div className="flex items-center justify-between">
                         <div>
