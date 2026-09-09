@@ -17,19 +17,34 @@ export default function CreateEmployee() {
         setLoading(true);
         setMessage({ text: "", type: "" });
         try {
-            const token = localStorage.getItem("token");
-            if (!token) { router.push("/login"); return; }
-            const response = await fetch("http://localhost:5000/users", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
-            });
+            const response = await fetch(
+                "http://localhost:5000/users",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(formData)
+                }
+            );
+
             const data = await response.json();
-            if (!response.ok) { setMessage({ text: data.message, type: "error" }); return; }
+            if (!response.ok) { 
+              setMessage({ text: data.message, type: "error" }); 
+              return; 
+            }
             setMessage({ text: "Employee created successfully!", type: "success" });
-            setFormData({ name: "", email: "", password: "" });
-        } catch { setMessage({ text: "Something went wrong.", type: "error" }); }
-        finally { setLoading(false); }
+            setFormData({ 
+              name: "", 
+              email: "", 
+              password: "" 
+            });
+        } catch { 
+          setMessage({ text: "Something went wrong.", type: "error" }); 
+        } finally { 
+          setLoading(false); 
+        }
     };
 
     return (

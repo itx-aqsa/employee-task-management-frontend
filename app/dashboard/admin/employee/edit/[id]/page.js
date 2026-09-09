@@ -14,22 +14,36 @@ export default function EditEmployee() {
     const router = useRouter();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) { router.push("/login"); return; }
-
         const getEmployee = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/users/${params.id}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const data = await response.json();
-                if (!response.ok) { setMessage({ text: data.message, type: "error" }); setLoading(false); return; }
-                setFormData({ name: data.data.name, email: data.data.email, password: "" });
-            } catch { setMessage({ text: "Something went wrong.", type: "error" }); }
-            finally { setLoading(false); }
+                const response = await fetch(
+                    `http://localhost:5000/users/${params.id}`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
+
+              const data = await response.json();                
+              if (!response.ok) { 
+                setMessage({ text: data.message, type: "error" }); 
+                setLoading(false); 
+                return; 
+              }
+
+                setFormData({
+                    name: data.data.name,
+                    email: data.data.email,
+                    password: "",
+                });                
+            } catch { 
+              setMessage({ text: "Something went wrong.", type: "error" }); 
+            } finally { 
+              setLoading(false); 
+            }
         };
         getEmployee();
-    }, [params.id, router]);
+    }, [params.id]);
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -38,18 +52,29 @@ export default function EditEmployee() {
         setSaving(true);
         setMessage({ text: "", type: "" });
         try {
-            const token = localStorage.getItem("token");
-            if (!token) { router.push("/login"); return; }
-            const response = await fetch(`http://localhost:5000/users/${params.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify(formData),
-            });
+            const response = await fetch(
+                `http://localhost:5000/users/${params.id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(formData)
+                }
+            );
+
             const data = await response.json();
-            if (!response.ok) { setMessage({ text: data.message, type: "error" }); return; }
+            if (!response.ok) { 
+              setMessage({ text: data.message, type: "error" }); 
+              return; 
+            }
             setMessage({ text: "Employee updated successfully!", type: "success" });
-        } catch { setMessage({ text: "Something went wrong.", type: "error" }); }
-        finally { setSaving(false); }
+        } catch { 
+          setMessage({ text: "Something went wrong.", type: "error" }); 
+        } finally { 
+          setSaving(false); 
+        }
     };
 
     if (loading) {

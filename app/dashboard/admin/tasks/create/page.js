@@ -15,19 +15,29 @@ export default function CreateTask() {
         const getEmployees = async () => {
             try {
                 const response = await fetch(
-                  "http://localhost:5000/users/employees", 
-                  {
-                    credentials: "include", 
-                  }
-                });
+                    "http://localhost:5000/users/employees",
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
+
                 const data = await response.json();
-                if (response.ok) {
-                  setEmployees(data.data);
-                } else {
-                  router.push("/login");
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        router.push("/login");
+                        return;
+                    }
+                    setMessage({
+                      text: data.message,
+                      type: "error",
+                    });
+                    return;
                 }
+               setEmployees(data.data);
             } catch (error) { 
               console.log(error); 
+              setMessage({ text: "Something went wrong.", type: "error", });
             }
         };
         getEmployees();
@@ -40,13 +50,18 @@ export default function CreateTask() {
         setLoading(true);
         setMessage({ text: "", type: "" });
         try {
-            const response = await fetch("http://localhost:5000/tasks", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", },
-                credentials: "include",
-                body: JSON.stringify(formData),
-            });        
-           
+            const response = await fetch(
+                "http://localhost:5000/tasks",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(formData)
+                }
+            );
+
             const data = await response.json();
             if (!response.ok) { 
               setMessage({ text: data.message, type: "error" }); 

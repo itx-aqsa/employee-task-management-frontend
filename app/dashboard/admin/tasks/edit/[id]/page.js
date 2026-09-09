@@ -16,51 +16,131 @@ export default function EditTaskPage() {
     const taskId = params.id;
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) { router.push("/login"); return; }
-
-        const getData = async () => {
-            try {
-                const [empRes, taskRes] = await Promise.all([
-                    fetch("http://localhost:5000/users/employees", { headers: { Authorization: `Bearer ${token}` } }),
-                    fetch(`http://localhost:5000/tasks/${taskId}`, { headers: { Authorization: `Bearer ${token}` } }),
-                ]);
-                const empData = await empRes.json();
-                const taskData = await taskRes.json();
-
-                if (empRes.ok) setEmployees(empData.data);
-                if (taskRes.ok) {
-                    const task = taskData.data;
-                    setFormData({ title: task.title, description: task.description || "", priority: task.priority, userId: String(task.userId) });
-                } else {
-                    setMessage({ text: taskData.message, type: "error" });
+    const getData = async () => {
+        try {
+            const employeeResponse = await fetch(
+                "http://localhost:5000/users/employees",
+                {
+                    method: "GET",
+                    credentials: "include",
                 }
-            } catch { setMessage({ text: "Something went wrong.", type: "error" }); }
-            finally { setLoading(false); }
-        };
-        getData();
-    }, [taskId, router]);
+            );
 
+            const employeeData = await employeeResponse.json();
+
+            if (!employeeResponse.ok) {
+                if (employeeResponse.status === 401) {
+                    router.push("/login");
+                    return;
+                }
+
+                setMessage({
+                    text: employeeData.message,
+                    type: "error",
+                });
+                return;
+            }
+
+            setEmployees(employeeData.data);
+
+            const taskResponse = await fetch(
+                `http://localhost:5000/tasks/${taskId}`,
+                {
+                    method: "GET",
+                    credentials: "include",
+                }
+            );
+
+            const taskData = await taskResponse.json();
+
+            if (!taskResponse.ok) {
+                if (taskResponse.status === 401) {
+                    router.push("/login");
+                    return;
+                }
+
+                setMessage({
+                    text: taskData.message,
+                    type: "error",
+                });
+                return;
+            }
+
+            const task = taskData.data;
+
+            setFormData({
+                title: task.title,
+                description: task.description || "",
+                priority: task.priority,
+                userId: String(task.userId),
+            });
+        } catch (error) {
+            console.log(error);
+            setMessage({
+                text: "Something went wrong.",
+                type: "error",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    getData();
+}, [taskId, router]);
+  
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setSaving(true);
-        setMessage({ text: "", type: "" });
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:5000/tasks/${taskId}`, {
+    e.preventDefault();
+    setSaving(true);
+    setMessage({ text: "", type: "" });
+
+    try {
+        const response = await fetch(
+            `http://localhost:5000/tasks/${taskId}`,
+            {
                 method: "PUT",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ ...formData, userId: Number(formData.userId) }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    title: formData.title,
+                    description: formData.description,
+                    priority: formData.priority,
+                    userId: Number(formData.userId),
+                }),
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            setMessage({
+                text: data.message,
+                type: "error",
             });
-            const data = await response.json();
-            if (!response.ok) { setMessage({ text: data.message, type: "error" }); return; }
-            setMessage({ text: "Task updated successfully!", type: "success" });
-            setTimeout(() => router.push("/dashboard/admin/tasks"), 1000);
-        } catch { setMessage({ text: "Something went wrong.", type: "error" }); }
-        finally { setSaving(false); }
-    };
+            return;
+        }
+
+        setMessage({
+            text: "Task updated successfully!",
+            type: "success",
+        });
+
+        setTimeout(() => {
+            router.push("/dashboard/admin/tasks");
+        }, 1000);
+    } catch (error) {
+        console.log(error);
+        setMessage({
+            text: "Something went wrong.",
+            type: "error",
+        });
+    } finally {
+        setSaving(false);
+    }
+};
 
     if (loading) {
         return (
