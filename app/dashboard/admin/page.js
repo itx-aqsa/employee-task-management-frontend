@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
  
 export default function AdminDashboard() {
-
     const [user, setUser] = useState(null);
     const [employees, setEmployees] = useState([]);
     const [stats, setStats] = useState({
@@ -12,32 +11,21 @@ export default function AdminDashboard() {
         totalTasks: 0,
         pendingTasks: 0
     })
-
     const router = useRouter();
 
     useEffect(() => {
-      const token = localStorage.getItem("token");
-        if (!token) {
-            router.push("/login");
-            return;
-        }
-
         const getProfile = async () => {
             try {
                 const response = await fetch(
                     "http://localhost:5000/users/profile",
                     {
                         method: "GET",
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
+                        credentials: "include",
                     }
                 )
 
                 const data = await response.json();
                 if(!response.ok) {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("role");
                     router.push("/login");
                     return;
                 }
@@ -58,27 +46,29 @@ export default function AdminDashboard() {
         getProfile();
     }, [router]);
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("role");
+    const handleLogout = async () => {
+      try {
+        await fetch(
+          "http://localhost:5000/users/logout",
+          {
+            method: "POST",
+            credentials: "include",
+          }
+        );
+               
+      } catch (error) {
+        console.log(error);
+      }
         router.push("/login");
     };
 
     const getEmployee = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            if(!token) {
-                router.push("/login");
-                return;
-            }
-
+        try {            
             const response = await fetch(
                 "http://localhost:5000/users/employees",
                 {
                     method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
+                    credentials: "include",
                 }
             )
 
@@ -96,19 +86,11 @@ export default function AdminDashboard() {
 
     const getDashboardStats = async () => {
         try {
-            const token = localStorage.getItem("token");
-            if(!token) {
-                router.push("/login");
-                return;
-            }
-
             const response = await fetch(
                 "http://localhost:5000/users/dashboard-stats",
                 {
                     method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
+                    credentials: "include",
                 }
             )
 
@@ -131,19 +113,11 @@ export default function AdminDashboard() {
         }
 
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                router.push("/login");
-                return;
-            }
-
             const response = await fetch(
                 `http://localhost:5000/users/${id}`,
                 {
                     method: "DELETE",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
+                    credentials: "include",
                 }
             );
 
@@ -164,7 +138,6 @@ export default function AdminDashboard() {
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="max-w-6xl mx-auto">
-
                 <div className="flex items-center justify-between bg-white rounded-xl shadow p-6">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-800">
@@ -181,7 +154,6 @@ export default function AdminDashboard() {
                         Logout
                     </button>
                 </div>
-
                 <div className="grid md:grid-cols-3 gap-6 mt-8">
 
                     <div className="bg-white rounded-xl shadow p-6">
@@ -212,7 +184,6 @@ export default function AdminDashboard() {
                             {stats.pendingTasks}
                         </p>
                     </div>
-
                 </div>
                 <button onClick={() => router.push("/dashboard/admin/tasks/create")}
                     className="mt-8 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700"
@@ -238,7 +209,6 @@ export default function AdminDashboard() {
                                 Manage your employees
                             </p>
                         </div>
-
                         <button
                             onClick={() =>
                                 router.push("/dashboard/admin/employee/create")
@@ -247,26 +217,20 @@ export default function AdminDashboard() {
                         >
                             + Add Employee
                         </button>
-
                     </div>
 
                     <div className="mt-6 space-y-3">
 
                         {employees.length === 0 ? (
-
                             <p className="text-gray-500">
                                 No employees found
                             </p>
-
                         ) : (
-
                             employees.map((employee) => (
-
                                 <div
                                     key={employee.id}
                                     className="border border-gray-200 rounded-lg p-4 flex items-center justify-between"
                                 >
-
                                     <div>
                                         <p className="font-semibold text-gray-800">
                                             {employee.name}
@@ -276,7 +240,7 @@ export default function AdminDashboard() {
                                             {employee.email}
                                         </p>
                                     </div>
-
+                                  
                                     <div className="flex items-center gap-4">
                                         <span className="text-sm text-gray-500">
                                             {employee._count?.tasks ?? 0}{" "}
