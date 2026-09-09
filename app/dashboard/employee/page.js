@@ -20,6 +20,7 @@ export default function EmployeeDashboard() {
     const [message, setMessage] = useState({ text: "", type: "" });
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isAuthChecked, setIsAuthChecked] = useState(false);
 
     const router = useRouter();
 
@@ -31,6 +32,7 @@ export default function EmployeeDashboard() {
         const userData = JSON.parse(savedUser);
         if (userData.role !== "EMPLOYEE") { router.push("/login"); return; }
         setUser(userData);
+        setIsAuthChecked(true);
 
         const getMyTasks = async () => {
             try {
@@ -74,6 +76,8 @@ export default function EmployeeDashboard() {
         inProgress: tasks.filter((t) => t.status === "IN_PROGRESS").length,
         completed: tasks.filter((t) => t.status === "COMPLETED").length,
     };
+
+    if (!isAuthChecked) return null;
 
     return (
         <div className="min-h-screen bg-slate-50 flex">

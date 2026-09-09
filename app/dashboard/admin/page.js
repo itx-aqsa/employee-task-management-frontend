@@ -11,6 +11,7 @@ export default function AdminDashboard() {
         totalTasks: 0,
         pendingTasks: 0
     })
+    const [isAuthChecked, setIsAuthChecked] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -35,6 +36,7 @@ export default function AdminDashboard() {
                     return;
                 }
                 setUser(data.data);
+                setIsAuthChecked(true);
                 getEmployee();
                 getDashboardStats();
 
@@ -135,6 +137,8 @@ export default function AdminDashboard() {
         }
     }
     
+    if (!isAuthChecked) return null;
+
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="max-w-6xl mx-auto">
