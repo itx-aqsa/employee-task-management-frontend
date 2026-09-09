@@ -3,7 +3,6 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-slate-50 flex flex-col items-center justify-center px-4">
-      {/* Hero */}
       <div className="text-center max-w-2xl">
         <div className="inline-flex items-center gap-2 bg-indigo-100 text-indigo-700 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
           <span className="w-2 h-2 rounded-full bg-indigo-500 inline-block"></span>
@@ -35,7 +34,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Feature cards */}
       <div className="mt-20 grid sm:grid-cols-3 gap-6 max-w-3xl w-full">
         {[
           {
