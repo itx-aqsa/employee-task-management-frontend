@@ -10,7 +10,7 @@ export default function CreateTask() {
         title: "",
         description: "",
         priority: "MEDIUM",
-        userId: ""
+        userId: "",
     });
     const [message, setMessage] = useState({ text: "", type: "" });
     const [loading, setLoading] = useState(false);
@@ -22,6 +22,7 @@ export default function CreateTask() {
                 const response = await fetch(
                     "http://localhost:5000/users/employees",
                     {
+                        method: "GET",
                         credentials: "include",
                     }
                 );
@@ -36,7 +37,7 @@ export default function CreateTask() {
 
                     setMessage({
                         text: data.message,
-                        type: "error"
+                        type: "error",
                     });
                     return;
                 }
@@ -44,9 +45,10 @@ export default function CreateTask() {
                 setEmployees(data.data);
             } catch (error) {
                 console.log(error);
+
                 setMessage({
                     text: "Something went wrong.",
-                    type: "error"
+                    type: "error",
                 });
             }
         };
@@ -57,7 +59,7 @@ export default function CreateTask() {
     const handleChange = (e) => {
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
         });
     };
 
@@ -90,29 +92,28 @@ export default function CreateTask() {
 
                 setMessage({
                     text: data.message,
-                    type: "error"
+                    type: "error",
                 });
                 return;
             }
 
             setMessage({
                 text: "Task created successfully!",
-                type: "success"
+                type: "success",
             });
 
             setFormData({
                 title: "",
                 description: "",
                 priority: "MEDIUM",
-                userId: ""
+                userId: "",
             });
-
         } catch (error) {
             console.log(error);
 
             setMessage({
                 text: "Something went wrong.",
-                type: "error"
+                type: "error",
             });
         } finally {
             setLoading(false);
@@ -121,7 +122,6 @@ export default function CreateTask() {
 
     return (
         <div className="min-h-screen bg-slate-50 flex">
-
             {/* Sidebar */}
             <aside className="w-64 bg-white border-r border-slate-100 flex flex-col fixed h-full">
                 <div className="p-6 border-b border-slate-100">

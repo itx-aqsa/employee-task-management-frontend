@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ export default function AdminDashboard() {
     const [stats, setStats] = useState({
         totalEmployees: 0,
         totalTasks: 0,
-        pendingTasks: 0
+        pendingTasks: 0,
     });
     const [isAuthChecked, setIsAuthChecked] = useState(false);
 
@@ -22,7 +22,7 @@ export default function AdminDashboard() {
                     "http://localhost:5000/users/profile",
                     {
                         method: "GET",
-                        credentials: "include"
+                        credentials: "include",
                     }
                 );
 
@@ -43,7 +43,6 @@ export default function AdminDashboard() {
 
                 getEmployee();
                 getDashboardStats();
-
             } catch (error) {
                 console.log(error);
                 router.push("/login");
@@ -59,7 +58,7 @@ export default function AdminDashboard() {
                 "http://localhost:5000/users/logout",
                 {
                     method: "POST",
-                    credentials: "include"
+                    credentials: "include",
                 }
             );
 
@@ -70,7 +69,6 @@ export default function AdminDashboard() {
             } else {
                 console.log(data.message);
             }
-
         } catch (error) {
             console.log(error);
         }
@@ -82,7 +80,7 @@ export default function AdminDashboard() {
                 "http://localhost:5000/users/employees",
                 {
                     method: "GET",
-                    credentials: "include"
+                    credentials: "include",
                 }
             );
 
@@ -94,7 +92,6 @@ export default function AdminDashboard() {
             }
 
             setEmployees(data.data);
-
         } catch (error) {
             console.log(error);
             alert("Something went wrong");
@@ -107,7 +104,7 @@ export default function AdminDashboard() {
                 "http://localhost:5000/users/dashboard-stats",
                 {
                     method: "GET",
-                    credentials: "include"
+                    credentials: "include",
                 }
             );
 
@@ -119,7 +116,6 @@ export default function AdminDashboard() {
             }
 
             setStats(data.data);
-
         } catch (error) {
             console.log(error);
             alert("Something went wrong");
@@ -140,7 +136,7 @@ export default function AdminDashboard() {
                 `http://localhost:5000/users/${id}`,
                 {
                     method: "DELETE",
-                    credentials: "include"
+                    credentials: "include",
                 }
             );
 
@@ -153,7 +149,6 @@ export default function AdminDashboard() {
 
             alert("Employee deleted successfully");
             getEmployee();
-
         } catch (error) {
             console.log(error);
             alert("Something went wrong");
@@ -165,7 +160,6 @@ export default function AdminDashboard() {
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="max-w-6xl mx-auto">
-
                 <div className="flex items-center justify-between bg-white rounded-xl shadow p-6">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-800">
@@ -188,7 +182,6 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6 mt-8">
-
                     <div className="bg-white rounded-xl shadow p-6">
                         <h2 className="font-semibold text-gray-700">
                             Total Employees
@@ -218,7 +211,6 @@ export default function AdminDashboard() {
                             {stats.pendingTasks}
                         </p>
                     </div>
-
                 </div>
 
                 <button
@@ -239,8 +231,16 @@ export default function AdminDashboard() {
                     View Tasks
                 </button>
 
-                <div className="bg-white rounded-xl shadow p-6 mt-8">
+                <button
+                    onClick={() =>
+                        router.push("/dashboard/admin/tasks/kanban")
+                    }
+                    className="mt-8 ml-3 bg-purple-600 text-white px-5 py-2.5 rounded-lg hover:bg-purple-700"
+                >
+                    Kanban Board
+                </button>
 
+                <div className="bg-white rounded-xl shadow p-6 mt-8">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-bold text-gray-800">
@@ -265,7 +265,6 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="mt-6 space-y-3">
-
                         {employees.length === 0 ? (
                             <p className="text-gray-500">
                                 No employees found
@@ -287,7 +286,6 @@ export default function AdminDashboard() {
                                     </div>
 
                                     <div className="flex items-center gap-4">
-
                                         <span className="text-sm text-gray-500">
                                             {employee._count?.tasks ?? 0}{" "}
                                             {employee._count?.tasks === 1
@@ -296,7 +294,6 @@ export default function AdminDashboard() {
                                         </span>
 
                                         <div className="flex gap-2">
-
                                             <button
                                                 onClick={() =>
                                                     router.push(
@@ -316,16 +313,13 @@ export default function AdminDashboard() {
                                             >
                                                 Delete
                                             </button>
-
                                         </div>
                                     </div>
                                 </div>
                             ))
                         )}
-
                     </div>
                 </div>
-
             </div>
         </div>
     );

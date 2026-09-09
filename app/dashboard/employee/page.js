@@ -63,6 +63,11 @@ export default function EmployeeDashboard() {
                 const tasksData = await tasksResponse.json();
 
                 if (!tasksResponse.ok) {
+                    if (tasksResponse.status === 401) {
+                        router.push("/login");
+                        return;
+                    }
+
                     setMessage({
                         text: tasksData.message,
                         type: "error",
@@ -73,6 +78,7 @@ export default function EmployeeDashboard() {
                 setTasks(tasksData.data);
             } catch (error) {
                 console.log(error);
+
                 setMessage({
                     text: "Something went wrong.",
                     type: "error",
@@ -104,10 +110,16 @@ export default function EmployeeDashboard() {
             const data = await response.json();
 
             if (!response.ok) {
+                if (response.status === 401) {
+                    router.push("/login");
+                    return;
+                }
+
                 setMessage({
                     text: data.message,
                     type: "error",
                 });
+
                 return;
             }
 
@@ -125,7 +137,10 @@ export default function EmployeeDashboard() {
             });
 
             setTimeout(() => {
-                setMessage({ text: "", type: "" });
+                setMessage({
+                    text: "",
+                    type: "",
+                });
             }, 2500);
         } catch (error) {
             console.log(error);
@@ -175,6 +190,7 @@ export default function EmployeeDashboard() {
                             <p className="font-semibold text-slate-800 text-sm">
                                 TaskManager
                             </p>
+
                             <p className="text-xs text-slate-400">
                                 Employee Portal
                             </p>
@@ -186,6 +202,15 @@ export default function EmployeeDashboard() {
                     <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 font-medium text-sm">
                         <span>🏠</span> Dashboard
                     </div>
+
+                    <button
+                        onClick={() =>
+                            router.push("/dashboard/employee/kanban")
+                        }
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors text-left"
+                    >
+                        <span>📋</span> Kanban Board
+                    </button>
                 </nav>
 
                 <div className="p-4 border-t border-slate-100">
@@ -219,16 +244,27 @@ export default function EmployeeDashboard() {
             {/* Main */}
             <main className="flex-1 ml-64 p-8">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-slate-900">
-                        My Dashboard
-                    </h1>
+                <div className="mb-8 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-900">
+                            My Dashboard
+                        </h1>
 
-                    <p className="text-slate-500 mt-1">
-                        {user
-                            ? `Welcome back, ${user.name}`
-                            : "Loading..."}
-                    </p>
+                        <p className="text-slate-500 mt-1">
+                            {user
+                                ? `Welcome back, ${user.name}`
+                                : "Loading..."}
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={() =>
+                            router.push("/dashboard/employee/kanban")
+                        }
+                        className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Kanban Board
+                    </button>
                 </div>
 
                 {/* Task stat cards */}
