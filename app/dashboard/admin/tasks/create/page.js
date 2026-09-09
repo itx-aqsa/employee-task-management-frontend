@@ -12,16 +12,23 @@ export default function CreateTask() {
     const router = useRouter();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) { router.push("/login"); return; }
         const getEmployees = async () => {
             try {
-                const response = await fetch("http://localhost:5000/users/employees", {
-                    headers: { Authorization: `Bearer ${token}` },
+                const response = await fetch(
+                  "http://localhost:5000/users/employees", 
+                  {
+                    credentials: "include", 
+                  }
                 });
                 const data = await response.json();
-                if (response.ok) setEmployees(data.data);
-            } catch (error) { console.log(error); }
+                if (response.ok) {
+                  setEmployees(data.data);
+                } else {
+                  router.push("/login");
+                }
+            } catch (error) { 
+              console.log(error); 
+            }
         };
         getEmployees();
     }, [router]);
@@ -33,19 +40,31 @@ export default function CreateTask() {
         setLoading(true);
         setMessage({ text: "", type: "" });
         try {
-            const token = localStorage.getItem("token");
-            if (!token) { router.push("/login"); return; }
             const response = await fetch("http://localhost:5000/tasks", {
                 method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ ...formData, userId: Number(formData.userId) }),
-            });
+                headers: { "Content-Type": "application/json", },
+                credentials: "include",
+                body: JSON.stringify(formData),
+            });        
+           
             const data = await response.json();
-            if (!response.ok) { setMessage({ text: data.message, type: "error" }); return; }
+            if (!response.ok) { 
+              setMessage({ text: data.message, type: "error" }); 
+              return; 
+            }
             setMessage({ text: "Task created successfully!", type: "success" });
-            setFormData({ title: "", description: "", priority: "MEDIUM", userId: "" });
-        } catch { setMessage({ text: "Something went wrong.", type: "error" }); }
-        finally { setLoading(false); }
+            setFormData({ 
+              title: "", 
+              description: "", 
+              priority: "MEDIUM", 
+              userId: "" 
+            });
+        } catch (error) {
+          console.log(error);
+          setMessage({ text: "Something went wrong.", type: "error" }); 
+        } finally { 
+          setLoading(false); 
+        }
     };
 
     return (
