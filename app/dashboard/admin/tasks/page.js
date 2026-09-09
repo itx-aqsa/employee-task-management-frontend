@@ -33,6 +33,7 @@ export default function TasksPage() {
                 const response = await fetch(
                     "http://localhost:5000/tasks",
                     {
+                        method: "GET",
                         credentials: "include",
                     }
                 );
@@ -50,7 +51,8 @@ export default function TasksPage() {
                 }
 
                 setTasks(data.data);
-            } catch {
+            } catch (error) {
+                console.log(error);
                 setMessage("Something went wrong");
             }
         };
@@ -85,9 +87,23 @@ export default function TasksPage() {
             }
 
             setTasks((prev) => prev.filter((t) => t.id !== id));
-        } catch {
+        } catch (error) {
+            console.log(error);
             setMessage("Something went wrong");
         }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await fetch("http://localhost:5000/users/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
+        router.push("/login");
     };
 
     return (
@@ -145,11 +161,7 @@ export default function TasksPage() {
 
                 <div className="p-4 border-t border-slate-100">
                     <button
-                        onClick={() => {
-                            localStorage.removeItem("token");
-                            localStorage.removeItem("user");
-                            router.push("/login");
-                        }}
+                        onClick={handleLogout}
                         className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 text-sm font-medium transition-colors"
                     >
                         <span>🚪</span> Logout
@@ -164,6 +176,7 @@ export default function TasksPage() {
                         <h1 className="text-2xl font-bold text-slate-900">
                             Tasks
                         </h1>
+
                         <p className="text-slate-500 mt-1">
                             Manage all employee tasks
                         </p>
@@ -208,15 +221,19 @@ export default function TasksPage() {
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">
                                         Task
                                     </th>
+
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">
                                         Assigned To
                                     </th>
+
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">
                                         Priority
                                     </th>
+
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">
                                         Status
                                     </th>
+
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">
                                         Actions
                                     </th>
@@ -233,6 +250,7 @@ export default function TasksPage() {
                                             <p className="text-3xl mb-2">
                                                 📋
                                             </p>
+
                                             <p>No tasks found</p>
                                         </td>
                                     </tr>
@@ -266,6 +284,7 @@ export default function TasksPage() {
                                                         <p className="text-sm font-medium text-slate-800">
                                                             {task.user?.name}
                                                         </p>
+
                                                         <p className="text-xs text-slate-400">
                                                             {task.user?.email}
                                                         </p>

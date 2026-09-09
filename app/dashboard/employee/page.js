@@ -51,10 +51,11 @@ export default function EmployeeDashboard() {
                 setUser(profileData.data);
                 setIsAuthChecked(true);
 
-                // Fetch employee tasks
+                // Fetch employee's tasks
                 const tasksResponse = await fetch(
                     "http://localhost:5000/tasks/my-tasks",
                     {
+                        method: "GET",
                         credentials: "include",
                     }
                 );
@@ -77,6 +78,7 @@ export default function EmployeeDashboard() {
                 setTasks(tasksData.data);
             } catch (error) {
                 console.log(error);
+
                 setMessage({
                     text: "Something went wrong.",
                     type: "error",
@@ -117,6 +119,7 @@ export default function EmployeeDashboard() {
                     text: data.message,
                     type: "error",
                 });
+
                 return;
             }
 
@@ -129,7 +132,7 @@ export default function EmployeeDashboard() {
             );
 
             setMessage({
-                text: "Status updated.",
+                text: "Task status updated successfully.",
                 type: "success",
             });
 
@@ -187,6 +190,7 @@ export default function EmployeeDashboard() {
                             <p className="font-semibold text-slate-800 text-sm">
                                 TaskManager
                             </p>
+
                             <p className="text-xs text-slate-400">
                                 Employee Portal
                             </p>
@@ -220,6 +224,7 @@ export default function EmployeeDashboard() {
                                 <p className="text-sm font-medium text-slate-800 truncate">
                                     {user.name}
                                 </p>
+
                                 <p className="text-xs text-slate-400 truncate">
                                     {user.email}
                                 </p>
@@ -304,6 +309,7 @@ export default function EmployeeDashboard() {
                                 <p className="text-xs text-slate-500">
                                     {s.label}
                                 </p>
+
                                 <p className="text-2xl font-bold text-slate-900">
                                     {s.value}
                                 </p>
@@ -332,6 +338,7 @@ export default function EmployeeDashboard() {
                             <h2 className="text-lg font-semibold text-slate-900">
                                 My Tasks
                             </h2>
+
                             <p className="text-sm text-slate-500 mt-0.5">
                                 Tasks assigned to you
                             </p>
@@ -355,9 +362,11 @@ export default function EmployeeDashboard() {
                                             <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
                                                 Title
                                             </th>
+
                                             <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
                                                 Priority
                                             </th>
+
                                             <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
                                                 Status
                                             </th>
@@ -414,9 +423,11 @@ export default function EmployeeDashboard() {
                                                         <option value="PENDING">
                                                             Pending
                                                         </option>
+
                                                         <option value="IN_PROGRESS">
                                                             In Progress
                                                         </option>
+
                                                         <option value="COMPLETED">
                                                             Completed
                                                         </option>
@@ -451,6 +462,7 @@ export default function EmployeeDashboard() {
                                         <p className="text-xs text-slate-400 mb-0.5">
                                             Full Name
                                         </p>
+
                                         <p className="text-sm font-medium text-slate-800">
                                             {user.name}
                                         </p>
@@ -460,6 +472,7 @@ export default function EmployeeDashboard() {
                                         <p className="text-xs text-slate-400 mb-0.5">
                                             Email
                                         </p>
+
                                         <p className="text-sm font-medium text-slate-800">
                                             {user.email}
                                         </p>
@@ -469,6 +482,7 @@ export default function EmployeeDashboard() {
                                         <p className="text-xs text-slate-400 mb-0.5">
                                             Role
                                         </p>
+
                                         <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700">
                                             {user.role}
                                         </span>

@@ -12,6 +12,7 @@ export default function AdminDashboard() {
         pendingTasks: 0,
     });
     const [isAuthChecked, setIsAuthChecked] = useState(false);
+
     const router = useRouter();
 
     useEffect(() => {
@@ -222,7 +223,9 @@ export default function AdminDashboard() {
                 </button>
 
                 <button
-                    onClick={() => router.push("/dashboard/admin/tasks")}
+                    onClick={() =>
+                        router.push("/dashboard/admin/tasks")
+                    }
                     className="mt-8 ml-3 bg-gray-800 text-white px-5 py-2.5 rounded-lg hover:bg-gray-900"
                 >
                     View Tasks
