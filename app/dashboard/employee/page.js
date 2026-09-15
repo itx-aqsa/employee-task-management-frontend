@@ -2,6 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FiHome,FiLogOut} from "react-icons/fi";
+import { FaRegClipboard } from "react-icons/fa6";
+import { LuNotebookPen } from "react-icons/lu";
+import {motion} from "framer-motion"
+import {
+  FaTasks,
+  FaClock,
+  FaSpinner,
+  FaCheckCircle,
+} from "react-icons/fa";
+
+
 
 const priorityBadge = {
     HIGH: "bg-red-100 text-red-700",
@@ -50,6 +62,8 @@ export default function EmployeeDashboard() {
 
                 setUser(profileData.data);
                 setIsAuthChecked(true);
+
+              
 
                 // Fetch employee's tasks
                 const tasksResponse = await fetch(
@@ -177,17 +191,17 @@ export default function EmployeeDashboard() {
     return (
         <div className="min-h-screen bg-slate-50 flex">
             {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-slate-100 flex flex-col fixed h-full">
+            <motion.aside initial={{ opacity: 0, x:-20 }} animate={{ opacity: 1, x: 0}} transition={{delay:0.3}} className="w-64 bg-white border-r border-slate-100 flex flex-col fixed h-full">
                 <div className="p-6 border-b border-slate-100">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
-                            <span className="text-white font-bold text-sm">
+                            <span className="text-white font-bold text-lg">
                                 TM
                             </span>
                         </div>
 
                         <div>
-                            <p className="font-semibold text-slate-800 text-sm">
+                            <p className="font-bold text-slate-800 text-xl">
                                 TaskManager
                             </p>
 
@@ -199,17 +213,17 @@ export default function EmployeeDashboard() {
                 </div>
 
                 <nav className="flex-1 p-4 space-y-1">
-                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 font-medium text-sm">
-                        <span>🏠</span> Dashboard
+                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 font-medium text-lg">
+                        <span><FiHome className="text-xl"/></span> Dashboard
                     </div>
 
                     <button
                         onClick={() =>
                             router.push("/dashboard/employee/kanban")
                         }
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-lg transition-colors text-left"
                     >
-                        <span>📋</span> Kanban Board
+                        <span><FaRegClipboard className="text-xl"/></span> Kanban Board
                     </button>
                 </nav>
 
@@ -234,21 +248,21 @@ export default function EmployeeDashboard() {
 
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 text-sm font-medium transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 text-lg font-medium transition-colors"
                     >
-                        <span>🚪</span> Logout
+                        <span><FiLogOut className="text-3xl"/></span> Logout
                     </button>
                 </div>
-            </aside>
+            </motion.aside>
 
             {/* Main */}
             <main className="flex-1 ml-64 p-8">
                 {/* Header */}
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900">
+                        <motion.h1 initial={{opacity:0.3 ,scale:0}} animate={{opacity:1 ,scale:1,delay:0.7}} className="text-2xl font-bold text-slate-900">
                             My Dashboard
-                        </h1>
+                        </motion.h1>
 
                         <p className="text-slate-500 mt-1">
                             {user
@@ -257,56 +271,59 @@ export default function EmployeeDashboard() {
                         </p>
                     </div>
 
-                    <button
+                    <motion.button initial={{ scale:0 }} animate={{ scale:1}} 
                         onClick={() =>
                             router.push("/dashboard/employee/kanban")
                         }
-                        className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-colors"
+                        className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 hover:scale-105 ease-in-out transition-colors"
                     >
                         Kanban Board
-                    </button>
+                    </motion.button>
                 </div>
 
                 {/* Task stat cards */}
-                <div className="grid grid-cols-4 gap-4 mb-8">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0}} transition={{delay:0.4}} className="grid grid-cols-4 gap-4 mb-8">
                     {[
                         {
                             label: "Total Tasks",
                             value: taskCounts.total,
                             color: "bg-indigo-50 text-indigo-600",
-                            icon: "📋",
+                            icon: FaTasks,
                         },
                         {
                             label: "Pending",
                             value: taskCounts.pending,
                             color: "bg-amber-50 text-amber-600",
-                            icon: "⏳",
+                            icon: FaClock,
                         },
                         {
                             label: "In Progress",
                             value: taskCounts.inProgress,
                             color: "bg-blue-50 text-blue-600",
-                            icon: "🔄",
+                            icon: FaSpinner,
                         },
                         {
                             label: "Completed",
                             value: taskCounts.completed,
                             color: "bg-green-50 text-green-600",
-                            icon: "✅",
+                            icon: FaCheckCircle,
                         },
-                    ].map((s) => (
+                        
+                    ].map((s) => {
+                        const Icon=s.icon;
+                        return(
                         <div
                             key={s.label}
-                            className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-3"
+                            className="bg-white rounded-2xl border border-slate-100 shadow-lg hover:scale-105 ease-in-out duration-100 p-5 flex items-center gap-3"
                         >
                             <div
-                                className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.color}`}
+                                className={`w-14 h-14 rounded-xl flex items-center justify-center ${s.color}`}
                             >
-                                {s.icon}
+                               <Icon className="text-3xl"/>
                             </div>
 
                             <div>
-                                <p className="text-xs text-slate-500">
+                                <p className="text-lg text-slate-500">
                                     {s.label}
                                 </p>
 
@@ -315,8 +332,9 @@ export default function EmployeeDashboard() {
                                 </p>
                             </div>
                         </div>
-                    ))}
-                </div>
+                        );
+                    })}
+                </motion.div>
 
                 {/* Feedback */}
                 {message.text && (
@@ -333,9 +351,10 @@ export default function EmployeeDashboard() {
 
                 <div className="grid lg:grid-cols-3 gap-6">
                     {/* Tasks table */}
-                    <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                        <div className="p-6 border-b border-slate-100">
-                            <h2 className="text-lg font-semibold text-slate-900">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0}} transition={{delay:0.7}}  className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                        <div className="p-6 border-b flex flex-col items-center justify-center border-slate-100">
+                           
+                            <h2 className="text-xl font-semibold text-slate-900">
                                 My Tasks
                             </h2>
 
@@ -345,13 +364,18 @@ export default function EmployeeDashboard() {
                         </div>
 
                         {loading ? (
-                            <div className="p-10 text-center text-slate-400">
-                                <p className="text-2xl mb-2">⏳</p>
+                            <div className="p-10 text-center flex flex-col items-center justify-center text-slate-400">
+                                <p className="text-2xl mb-2"><FaSpinner className="text-3xl  text-indigo-700"/></p>
                                 <p>Loading your tasks...</p>
                             </div>
                         ) : tasks.length === 0 ? (
                             <div className="p-10 text-center text-slate-400">
-                                <p className="text-2xl mb-2">📭</p>
+                                <p className="text-3xl mb-2 flex items-center justify-center">
+                                    <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-purple-100">
+<LuNotebookPen className="text-3xl text-purple-800"/>
+                                    </div>
+                                    
+                                    </p>
                                 <p>No tasks assigned yet</p>
                             </div>
                         ) : (
@@ -439,10 +463,10 @@ export default function EmployeeDashboard() {
                                 </table>
                             </div>
                         )}
-                    </div>
+                    </motion.div>
 
                     {/* Profile card */}
-                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 h-fit">
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0}} transition={{delay:0.9}}  className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 h-fit">
                         <h2 className="text-lg font-semibold text-slate-900 mb-4">
                             My Profile
                         </h2>
@@ -490,7 +514,9 @@ export default function EmployeeDashboard() {
                                 </div>
                             </div>
                         )}
-                    </div>
+                    </motion.div>
+
+
                 </div>
             </main>
         </div>

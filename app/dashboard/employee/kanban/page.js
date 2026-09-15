@@ -3,10 +3,47 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import KanbanBoard from "../../../components/KanbanBoard";
+import {motion} from "framer-motion";
 
+
+// 1. DUMMY DATA HERE: Yahan aap dummy tasks add/change kar sakte hain
+const DUMMY_TASKS = [
+  {
+    id: 1,
+    title: "Build Responsive Dashboard",
+    description: "Create sleek UI using Tailwind CSS and Framer Motion components.",
+    priority: "HIGH",
+    status: "PENDING",
+    user: { name: "Nayab Mubashar" },
+  },
+  {
+    id: 2,
+    title: "Integrate REST APIs",
+    description: "Setup Axios instances to handle backend task updates.",
+    priority: "MEDIUM",
+    status: "IN_PROGRESS",
+    user: { name: "Nayab Mubashar" },
+  },
+  {
+    id: 3,
+    title: "Test Drag & Drop Logic",
+    description: "Verify state change on moving tasks across columns.",
+    priority: "HIGH",
+    status: "IN_REVIEW",
+    user: { name: "Nayab Mubashar" },
+  },
+  {
+    id: 4,
+    title: "Fix Navigation Bar Bug",
+    description: "Resolve mobile drawer toggle menu issues.",
+    priority: "LOW",
+    status: "COMPLETED",
+    user: { name: "Nayab Mubashar" },
+  },
+];
 export default function EmployeeKanbanPage() {
     const [user, setUser] = useState(null);
-    const [tasks, setTasks] = useState([]);
+    const [tasks, setTasks] = useState(DUMMY_TASKS);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
 
@@ -116,11 +153,11 @@ export default function EmployeeKanbanPage() {
             <div className="max-w-6xl mx-auto">
 
                 {/* Header */}
-                <div className="flex items-center justify-between bg-white rounded-xl shadow p-6 mb-6">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0}} transition={{delay:0.3}} className="flex items-center justify-between bg-white rounded-xl shadow p-6 mb-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-800">
+                        <motion.h1 initial={{scale:0}} animate={{scale:1}} transition={{delay:0.5}} className="text-3xl font-bold text-gray-800">
                             My Kanban Board
-                        </h1>
+                        </motion.h1>
                         {user && (
                             <p className="text-gray-500 mt-1">
                                 Welcome back,{" "}
@@ -130,7 +167,7 @@ export default function EmployeeKanbanPage() {
                             </p>
                         )}
                     </div>
-                    <div className="flex gap-3">
+                    <motion.div initial={{scale:0}} animate={{scale:1}} transition={{delay:0.5}}   className="flex gap-3">
                         <button
                             onClick={() => router.push("/dashboard/employee")}
                             className="bg-gray-200 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-300 transition-colors"
@@ -139,21 +176,21 @@ export default function EmployeeKanbanPage() {
                         </button>
                         <button
                             onClick={handleLogout}
-                            className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                            className="bg-red-500 text-white px-5 py-2 hover:scale-105 duration-150 rounded-lg hover:bg-red-600 transition-colors"
                         >
                             Logout
                         </button>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
                 {message && (
-                    <p className="text-center mb-4 text-sm text-red-500">
+                    <p className="text-center mb-4 text-md text-red-500">
                         {message}
                     </p>
                 )}
 
                 {/* Hint */}
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="text-xl text-gray-500 mb-4 bg-gray-200 p-4 rounded-full">
                     Drag and drop cards to update their status.
                 </p>
 

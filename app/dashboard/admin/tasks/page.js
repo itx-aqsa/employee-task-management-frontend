@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {motion} from "framer-motion"
+import { FiHome,FiLogOut,FiPlus ,FiPlusCircle} from "react-icons/fi";
+import { FaRegClipboard } from "react-icons/fa6";
+import { LuNotebookPen } from "react-icons/lu";
+import { MdLogout } from "react-icons/md";
 
 const priorityBadge = {
     HIGH: "bg-red-100 text-red-700",
@@ -109,20 +114,20 @@ export default function TasksPage() {
     return (
         <div className="min-h-screen bg-slate-50 flex">
             {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-slate-100 flex flex-col fixed h-full">
+            <motion.aside initial={{ opacity: 0, x:-20 }} animate={{ opacity: 1, x: 0}} transition={{delay:0.3}}  className="w-64 bg-white border-r border-slate-100 flex flex-col fixed h-full">
                 <div className="p-6 border-b border-slate-100">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
-                            <span className="text-white font-bold text-sm">
+                            <span className="text-white font-bold text-lg">
                                 TM
                             </span>
                         </div>
 
                         <div>
-                            <p className="font-semibold text-slate-800 text-sm">
+                            <p className="font-semibold text-slate-800 text-lg">
                                 TaskManager
                             </p>
-                            <p className="text-xs text-slate-400">
+                            <p className="text-sm text-slate-400">
                                 Admin Panel
                             </p>
                         </div>
@@ -132,30 +137,30 @@ export default function TasksPage() {
                 <nav className="flex-1 p-4 space-y-1">
                     <Link
                         href="/dashboard/admin"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-lg  transition-colors"
                     >
-                        <span>🏠</span> Dashboard
+                        <span><FiHome className="text-xl"/></span> Dashboard
                     </Link>
 
                     <Link
                         href="/dashboard/admin/tasks"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 font-medium text-sm"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 font-medium text-lg"
                     >
-                        <span>📋</span> Tasks
+                        <span><FaRegClipboard className="text-xl"/></span> Tasks
                     </Link>
 
                     <Link
                         href="/dashboard/admin/employee/create"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-lg transition-colors"
                     >
-                        <span>➕</span> Add Employee
+                        <span><FiPlus className="text-xl"/></span> Add Employee
                     </Link>
 
                     <Link
                         href="/dashboard/admin/tasks/create"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-lg transition-colors"
                     >
-                        <span>✏️</span> Create Task
+                        <span><FiPlusCircle className="text-xl"/></span> Create Task
                     </Link>
                 </nav>
 
@@ -164,32 +169,32 @@ export default function TasksPage() {
                         onClick={handleLogout}
                         className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 text-sm font-medium transition-colors"
                     >
-                        <span>🚪</span> Logout
+                        <span><MdLogout className="text-xl"/></span> Logout
                     </button>
                 </div>
-            </aside>
+            </motion.aside>
 
             {/* Main */}
             <main className="flex-1 ml-64 p-8">
                 <div className="flex items-center justify-between mb-8">
-                    <div>
+                    <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}}>
                         <h1 className="text-2xl font-bold text-slate-900">
                             Tasks
                         </h1>
 
-                        <p className="text-slate-500 mt-1">
+                        <p className="text-slate-500 text-md mt-1">
                             Manage all employee tasks
                         </p>
-                    </div>
+                    </motion.div>
 
-                    <div className="flex gap-3">
+                    <motion.div initial={{ scale:0 }} animate={{ scale:1}}  className="flex gap-3">
                         <button
                             onClick={() =>
                                 router.push(
                                     "/dashboard/admin/tasks/kanban"
                                 )
                             }
-                            className="bg-purple-600 text-white px-5 py-2.5 rounded-lg hover:bg-purple-700"
+                            className="bg-purple-600 text-white px-5 py-2.5 rounded-lg hover:bg-purple-700 hover:scale-105 ease-in-out duration-200"
                         >
                             Kanban View
                         </button>
@@ -200,11 +205,11 @@ export default function TasksPage() {
                                     "/dashboard/admin/tasks/create"
                                 )
                             }
-                            className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700"
+                            className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 hover:scale-105 ease-in-out duration-200"
                         >
                             + Create Task
                         </button>
-                    </div>
+                    </motion.div>
                 </div>
 
                 {message && (
@@ -213,28 +218,28 @@ export default function TasksPage() {
                     </div>
                 )}
 
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
+                <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.7}} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div  className="overflow-x-auto shadow-2xl">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-slate-100 bg-slate-50">
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                                <tr className="border-b shadow-md border-slate-100 bg-slate-50">
+                                    <th className="text-left px-6 py-4 text-md font-bold text-slate-700 uppercase tracking-wide">
                                         Task
                                     </th>
 
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                                    <th className="text-left px-6 py-4 text-md font-bold text-slate-700 uppercase tracking-wide">
                                         Assigned To
                                     </th>
 
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                                    <th className="text-left px-6 py-4 text-md font-bold text-slate-700 uppercase tracking-wide">
                                         Priority
                                     </th>
 
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                                    <th className="text-left px-6 py-4 text-md font-bold text-slate-700 uppercase tracking-wide">
                                         Status
                                     </th>
 
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                                    <th className="text-left px-6 py-4 text-md font-bold text-slate-700 uppercase tracking-wide">
                                         Actions
                                     </th>
                                 </tr>
@@ -251,7 +256,7 @@ export default function TasksPage() {
                                                 📋
                                             </p>
 
-                                            <p>No tasks found</p>
+                                            <p className="text-lg">No tasks found</p>
                                         </td>
                                     </tr>
                                 ) : (
@@ -351,7 +356,7 @@ export default function TasksPage() {
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </motion.div>
             </main>
         </div>
     );

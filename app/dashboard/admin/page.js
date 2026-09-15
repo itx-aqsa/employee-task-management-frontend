@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import {motion} from "framer-motion";
 
 export default function AdminDashboard() {
     const [user, setUser] = useState(null);
@@ -43,9 +44,11 @@ export default function AdminDashboard() {
 
                 getEmployee();
                 getDashboardStats();
-            } catch (error) {
+            }
+             catch (error) {
                 console.log(error);
                 router.push("/login");
+                
             }
         };
 
@@ -160,64 +163,65 @@ export default function AdminDashboard() {
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="max-w-6xl mx-auto">
-                <div className="flex items-center justify-between bg-white rounded-xl shadow p-6">
+                <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} className="flex items-center justify-between bg-white rounded-xl shadow p-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-800">
+                        <motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.5}}  className="text-3xl font-bold text-gray-800">
                             Admin Dashboard
-                        </h1>
+                        </motion.h1>
 
                         {user && (
-                            <p className="text-gray-500 text-sm mt-1">
+                            <motion.p initial={{scale:0}} animate={{scale:1}}  className="text-gray-500 text-md mt-1">
                                 Welcome back, {user.name}
-                            </p>
+                            </motion.p>
                         )}
                     </div>
 
-                    <button
+                    <motion.button initial={{scale:0}} animate={{scale:1}} transition={{delay:0.3}}
                         onClick={handleLogout}
-                        className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200"
+                        className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition-colors  hover:scale-105 ease-in-out duration-200"
                     >
                         Logout
-                    </button>
-                </div>
+                    </motion.button>
+                </motion.div>
 
-                <div className="grid md:grid-cols-3 gap-6 mt-8">
-                    <div className="bg-white rounded-xl shadow p-6">
-                        <h2 className="font-semibold text-gray-700">
+                <div className="grid md:grid-cols-3 gap-6 mt-8 ">
+                    <motion.div initial={{opacity:0, y:20}} animate={{opacity:1 ,y:0}} transition={{delay:0.7}} className="bg-white rounded-xl  hover:scale-105 ease-in-out duration-200 shadow p-6">
+                        <h2 className="font-bold text-gray-700">
                             Total Employees
                         </h2>
 
                         <p className="text-3xl font-bold mt-3">
                             {stats.totalEmployees}
                         </p>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-white rounded-xl shadow p-6">
-                        <h2 className="font-semibold text-gray-700">
+                    <motion.div initial={{opacity:0, y:20}} animate={{opacity:1 ,y:0}} transition={{delay:0.8}} className="bg-white rounded-xl  hover:scale-105 ease-in-out duration-200 shadow p-6">
+                        <h2 className="font-bold text-gray-700">
                             Total Tasks
                         </h2>
 
                         <p className="text-3xl font-bold mt-3">
                             {stats.totalTasks}
                         </p>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-white rounded-xl shadow p-6">
-                        <h2 className="font-semibold text-gray-700">
+                    <motion.div initial={{opacity:0, y:20}} animate={{opacity:1 ,y:0}} transition={{delay:0.8}} className="bg-white rounded-xl  hover:scale-105 ease-in-out duration-200 shadow p-6">
+                        <h2 className="font-bold text-gray-700">
                             Pending Tasks
                         </h2>
 
                         <p className="text-3xl font-bold mt-3">
                             {stats.pendingTasks}
                         </p>
-                    </div>
+                    </motion.div>
                 </div>
 
+<motion.div initial={{opacity:0, y:20}} animate={{opacity:1 ,y:0}} transition={{delay:0.9}}  >
                 <button
                     onClick={() =>
                         router.push("/dashboard/admin/tasks/create")
                     }
-                    className="mt-8 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700"
+                    className="mt-8 bg-blue-600 text-white px-5 py-2.5 rounded-lg  hover:scale-105 ease-in-out hover:bg-blue-700"
                 >
                     + Create Task
                 </button>
@@ -226,7 +230,7 @@ export default function AdminDashboard() {
                     onClick={() =>
                         router.push("/dashboard/admin/tasks")
                     }
-                    className="mt-8 ml-3 bg-gray-800 text-white px-5 py-2.5 rounded-lg hover:bg-gray-900"
+                    className="mt-8 ml-3 bg-gray-800 text-white px-5 py-2.5 rounded-lg  hover:scale-105 ease-in-out hover:bg-gray-900"
                 >
                     View Tasks
                 </button>
@@ -235,12 +239,13 @@ export default function AdminDashboard() {
                     onClick={() =>
                         router.push("/dashboard/admin/tasks/kanban")
                     }
-                    className="mt-8 ml-3 bg-purple-600 text-white px-5 py-2.5 rounded-lg hover:bg-purple-700"
+                    className="mt-8 ml-3 bg-purple-600 text-white px-5 py-2.5 rounded-lg  hover:scale-105 ease-in-out hover:bg-purple-700"
                 >
                     Kanban Board
                 </button>
+                </motion.div>
 
-                <div className="bg-white rounded-xl shadow p-6 mt-8">
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1 ,y:0}} transition={{delay:1}} className="bg-white rounded-xl shadow p-6 mt-8">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-bold text-gray-800">
@@ -258,7 +263,7 @@ export default function AdminDashboard() {
                                     "/dashboard/admin/employee/create"
                                 )
                             }
-                            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                            className="bg-green-600 text-white px-4 py-2 rounded-lg  hover:scale-105 ease-in-out hover:bg-green-700"
                         >
                             + Add Employee
                         </button>
@@ -319,7 +324,7 @@ export default function AdminDashboard() {
                             ))
                         )}
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

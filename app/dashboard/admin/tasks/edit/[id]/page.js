@@ -184,7 +184,7 @@ export default function EditTaskPage() {
                         </div>
 
                         <div>
-                            <p className="font-semibold text-slate-800 text-sm">
+                            <p className="font-semibold text-slate-800 text-lg">
                                 TaskManager
                             </p>
                             <p className="text-xs text-slate-400">

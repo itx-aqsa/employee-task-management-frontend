@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import {motion} from "framer-motion";
 
 export default function RegisterPage() {
     const [formData, setFormData] = useState({ name: "", email: "", password: "" });
@@ -40,21 +41,39 @@ export default function RegisterPage() {
 
     return (
         <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-slate-50 flex items-center justify-center px-4">
-            <div className="w-full max-w-md">
+            <div className="w-full min-h-screen flex">
+                  {/* leftside */}
+
+            <div className="w-1/2 min-h-screen bg-indigo-600 flex flex-col items-center justify-center rounded-l-lg p-10 ">
+                <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, }} transition={{delay:0.3}} className="text-5xl  font-bold text-white">Create and Get Started</motion.h1>
+                <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, }} transition={{delay:0.5}} className="text-xl mt-6 max-w-2xl text-slate-300 ">Create your account today and get everything you need to manage tasks, track your team, and stay organized—all in one easy-to-use platform.</motion.p>
+                <img
+  src="/signup.gif"
+  alt=""
+  className="
+     w-70
+    
+  "
+/>
+
+
+                </div>
+                      {/* Rightside */}
+            <div className="w-1/2 min-h-screen bg-white flex flex-col justify-center p-10">
                 {/* Brand */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-12 h-12 bg-indigo-600 rounded-2xl mb-4 shadow-md">
-                        <span className="text-white text-xl">✓</span>
-                    </div>
-                    <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
-                    <p className="text-slate-500 mt-1 text-sm">Get started in seconds</p>
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1, delay: 0.2 }} duration={0.4} className="inline-flex items-center justify-center w-12 h-12 bg-indigo-600 rounded-4xl mb-4 shadow-md">
+                        <span className="text-white text-2xl">✓</span>
+                    </motion.div>
+                    <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0}} transition={{delay:0.6}} className="text-4xl font-bold text-slate-900">Create your account</motion.h1>
+                    <motion.p  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0}} transition={{delay:0.8}} className="text-slate-500 mt-1 text-lg">Get started in seconds</motion.p>
                 </div>
 
                 {/* Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                <motion.div  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0}} transition={{delay:1}} className="bg-white rounded-2xl max-w-2xl ml-28 shadow-sm border border-slate-100 p-8">
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                            <label className="block text-lg font-medium text-slate-700 mb-1.5">
                                 Full name
                             </label>
                             <input
@@ -64,12 +83,12 @@ export default function RegisterPage() {
                                 onChange={handleChange}
                                 placeholder="John Doe"
                                 required
-                                className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                            <label className="block text-lg font-medium text-slate-700 mb-1.5">
                                 Email address
                             </label>
                             <input
@@ -79,12 +98,12 @@ export default function RegisterPage() {
                                 onChange={handleChange}
                                 placeholder="you@example.com"
                                 required
-                                className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                            <label className="block text-lg font-medium text-slate-700 mb-1.5">
                                 Password
                             </label>
                             <input
@@ -94,13 +113,13 @@ export default function RegisterPage() {
                                 onChange={handleChange}
                                 placeholder="••••••••"
                                 required
-                                className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                             />
                         </div>
 
                         {message.text && (
                             <div
-                                className={`text-sm rounded-xl px-4 py-3 border ${
+                                className={`text-lg rounded-xl px-4 py-3 border ${
                                     message.type === "success"
                                         ? "bg-green-50 border-green-200 text-green-700"
                                         : "bg-red-50 border-red-200 text-red-700"
@@ -113,7 +132,7 @@ export default function RegisterPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-indigo-600 text-white py-2.5 rounded-xl font-semibold hover:bg-indigo-700 active:bg-indigo-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="w-full bg-indigo-600 text-white py-4 text-lg rounded-xl font-semibold hover:bg-indigo-700 hover:scale-105 ease-in-out active:bg-indigo-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {loading ? "Creating account..." : "Create account"}
                         </button>
@@ -125,6 +144,7 @@ export default function RegisterPage() {
                             Sign in
                         </Link>
                     </p>
+                </motion.div>
                 </div>
             </div>
         </div>

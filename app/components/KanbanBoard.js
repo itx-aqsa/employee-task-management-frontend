@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
+import {motion} from "framer-motion"
+
 
 const STATUS_COLUMNS = [
     {
@@ -24,6 +26,7 @@ const STATUS_COLUMNS = [
         headerColor: "bg-green-200 text-green-800",
         dotColor: "bg-green-500",
     },
+    
 ];
 
 const PRIORITY_COLORS = {
@@ -73,21 +76,21 @@ function KanbanColumn({column, tasks, draggable,
     isDragOver, showAssignee,
 }) {
     return (
-        <div
-            className={`flex flex-col rounded-xl border-2 min-h-100 transition-colors ${
+        <motion.div initial={{opacity:0 ,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.4}} 
+            className={`flex flex-col rounded-xl shadow-2xl hover:scale-105 duration-150 ease-in-out border-2 min-h-100 transition-colors ${
                 column.color
             } ${isDragOver ? "ring-2 ring-blue-400 ring-offset-1" : ""}`}
             onDragOver={draggable ? onDragOver : undefined}
             onDrop={draggable ? onDrop : undefined}
         >           
             <div
-                className={`flex items-center gap-2 px-4 py-3 rounded-t-lg ${column.headerColor}`}
+                className={`flex items-center gap-2 px-4 py-3 rounded-t-lg shadow-lg  ${column.headerColor}`}
             >
                 <span
                     className={`w-2.5 h-2.5 rounded-full ${column.dotColor}`}
                 />
-                <span className="font-semibold text-sm">{column.label}</span>
-                <span className="ml-auto text-xs font-medium opacity-70">
+                <span className="font-semibold text-lg">{column.label}</span>
+                <span className="ml-auto text-sm font-medium opacity-70">
                     {tasks.length}
                 </span>
             </div>
@@ -96,7 +99,7 @@ function KanbanColumn({column, tasks, draggable,
             <div className="flex flex-col gap-3 p-3 flex-1">
                 {tasks.length === 0 ? (
                     <div className="flex-1 flex items-center justify-center">
-                        <p className="text-xs text-gray-400 italic">
+                        <p className="text-sm text-gray-400 italic">
                             No tasks
                         </p>
                     </div>
@@ -113,7 +116,7 @@ function KanbanColumn({column, tasks, draggable,
                     ))
                 )}
             </div>
-        </div>
+        </motion.div>
     );
 }
 
@@ -151,7 +154,7 @@ export default function KanbanBoard({ tasks, onStatusChange, showAssignee = fals
     };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             {STATUS_COLUMNS.map((col) => (
                 <KanbanColumn
                     key={col.key}
