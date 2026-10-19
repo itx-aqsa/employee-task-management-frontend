@@ -47,7 +47,6 @@ export default function EmployeeKanbanPage() {
 
         const oldStatus = oldTask.status;
 
-        // Optimistic update
         setTasks((prev) =>
             prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
         );
@@ -61,7 +60,6 @@ export default function EmployeeKanbanPage() {
 
             if (!response.ok) {
                 setMessage(data.message || "Failed to update task status.");
-                // Roll back
                 setTasks((prev) =>
                     prev.map((t) => (t.id === taskId ? { ...t, status: oldStatus } : t))
                 );

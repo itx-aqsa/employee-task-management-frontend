@@ -29,7 +29,6 @@ export default function EmployeeDashboard() {
 
     useEffect(() => {
         const init = async () => {
-            // Only EMPLOYEE role is allowed here
             const profile = await requireRole(router, [ROLES.EMPLOYEE]);
             if (!profile) return;
 

@@ -20,14 +20,12 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         const init = async () => {
-            // Require ADMIN role — SUPER_ADMIN and EMPLOYEE get redirected to their own dashboards
             const profile = await requireRole(router, [ROLES.ADMIN]);
             if (!profile) return;
 
             setUser(profile);
             setIsAuthChecked(true);
 
-            // Pass agencyId from the profile so the backend scopes the response
             const agencyId = profile.agencyId ?? null;
             fetchEmployees(agencyId);
             fetchDashboardStats(agencyId);

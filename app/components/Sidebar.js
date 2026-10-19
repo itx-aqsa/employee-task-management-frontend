@@ -6,8 +6,6 @@ import { logout } from "../lib/auth";
 import { useRouter } from "next/navigation";
 import { ROLES } from "../lib/api";
 
-// ─── Nav link definitions per role ───────────────────────────────────────────
-
 const SUPER_ADMIN_LINKS = [
     { href: "/dashboard/super-admin", icon: "🏠", label: "Overview" },
     { href: "/dashboard/super-admin/agencies", icon: "🏢", label: "Agencies" },
@@ -45,8 +43,6 @@ const ROLE_CONFIG = {
 
 /**
  * Role-aware sidebar.
- *
- * @param {{ role: string, user?: { name: string } }} props
  */
 export default function Sidebar({ role, user }) {
     const router = useRouter();

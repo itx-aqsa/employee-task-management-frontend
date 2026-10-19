@@ -30,7 +30,6 @@ export default function SuperAdminDashboard() {
             setUser(profile);
             setIsAuthChecked(true);
 
-            // Fetch platform-wide stats
             fetchPlatformStats();
             fetchAgencies();
         };
@@ -77,7 +76,6 @@ export default function SuperAdminDashboard() {
             <Sidebar role={ROLES.SUPER_ADMIN} user={user} />
 
             <main className="flex-1 ml-64 p-8">
-                {/* Page header */}
                 <div className="mb-8">
                     <h1 className="text-2xl font-bold text-slate-900">
                         Platform Overview

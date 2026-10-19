@@ -1,21 +1,9 @@
-/**
- * Shared authentication helpers.
- *
- * Every protected page calls `requireRole(router, allowedRoles)` inside its
- * useEffect to verify the session and redirect if the role doesn't match.
- *
- * Returns the full profile object on success, or null if redirected.
- */
+// Shared auth helpers used by every protected page.
 
 import { apiFetch, ROLES, ROLE_DASHBOARD } from "./api";
 
-/**
- * Fetch the current user's profile and enforce role-based access.
- *
- * @param {import("next/navigation").AppRouterInstance} router
- * @param {string[]} allowedRoles  – e.g. [ROLES.ADMIN, ROLES.SUPER_ADMIN]
- * @returns {Promise<object|null>}  profile data or null (already redirected)
- */
+// Verifies the session, enforces role access, and redirects if needed.
+// Returns the profile object on success, or null if redirected.
 export async function requireRole(router, allowedRoles) {
     try {
         const { response, data } = await apiFetch("/users/profile");
@@ -29,8 +17,7 @@ export async function requireRole(router, allowedRoles) {
         const role = profile?.role;
 
         if (!allowedRoles.includes(role)) {
-            // Redirect to the user's own dashboard if they're just in the wrong place,
-            // otherwise send them back to login for unknown roles.
+            // Send to the user's own dashboard, or /login for unknown roles.
             const destination = ROLE_DASHBOARD[role] || "/login";
             router.push(destination);
             return null;
@@ -43,16 +30,11 @@ export async function requireRole(router, allowedRoles) {
     }
 }
 
-/**
- * Log the current user out and navigate to /login.
- *
- * @param {import("next/navigation").AppRouterInstance} router
- */
 export async function logout(router) {
     try {
         await apiFetch("/users/logout", "POST");
     } catch {
-        // swallow – we redirect regardless
+        // redirect regardless
     }
     router.push("/login");
 }

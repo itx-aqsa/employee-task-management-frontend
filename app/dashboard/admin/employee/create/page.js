@@ -37,7 +37,6 @@ export default function CreateEmployee() {
         setMessage({ text: "", type: "" });
 
         try {
-            // Pass agencyId so the backend assigns the new employee to the correct agency
             const agencyId = user?.agencyId ?? null;
             const { response, data } = await apiFetch(
                 "/users",
