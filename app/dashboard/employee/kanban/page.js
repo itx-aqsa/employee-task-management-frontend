@@ -21,10 +21,10 @@ export default function EmployeeKanbanPage() {
                 );
                 const profileData = await profileRes.json();
 
-                if (!profileRes.ok || profileData.data.role !== "EMPLOYEE") {
-                    router.push("/login");
-                    return;
-                }
+                // if (!profileRes.ok || profileData.data.role !== "EMPLOYEE") {
+                //     router.push("/login");
+                //     return;
+                // }
                 setUser(profileData.data);
 
                 const tasksRes = await fetch(

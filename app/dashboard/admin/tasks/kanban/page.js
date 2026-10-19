@@ -20,10 +20,10 @@ export default function AdminKanbanPage() {
                 );
                 const profileData = await profileRes.json();
 
-                if (!profileRes.ok || profileData.data.role !== "ADMIN") {
-                    router.push("/login");
-                    return;
-                }
+                // if (!profileRes.ok || profileData.data.role !== "ADMIN") {
+                //     router.push("/login");
+                //     return;
+                // }
 
                 const tasksRes = await fetch("http://localhost:5000/tasks", {
                     credentials: "include",
