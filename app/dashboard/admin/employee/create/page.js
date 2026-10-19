@@ -10,7 +10,23 @@ export default function CreateEmployee() {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    useEffect(() => {
+        const verifyAuth = async () => {
+            try {
+                const profileRes = await fetch("http://localhost:5000/users/profile", {
+                    method: "GET",
+                    credentials: "include",
+                });
+                const profileData = await profileRes.json();
+                if (!profileRes.ok || profileData.data?.role !== "ADMIN") {
+                    router.push("/login");
+                }
+            } catch {
+                router.push("/login");
+            }
+        };
+        verifyAuth();
+    }, [router]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -78,7 +94,17 @@ export default function CreateEmployee() {
                 </nav>
                 <div className="p-4 border-t border-slate-100">
                     <button
-                        onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); router.push("/login"); }}
+                        onClick={async () => {
+                            try {
+                                await fetch("http://localhost:5000/users/logout", {
+                                    method: "POST",
+                                    credentials: "include",
+                                });
+                            } catch (error) {
+                                console.log(error);
+                            }
+                            router.push("/login");
+                        }}
                         className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 text-sm font-medium transition-colors"
                     >
                         <span>🚪</span> Logout

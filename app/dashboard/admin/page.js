@@ -28,28 +28,24 @@ export default function AdminDashboard() {
 
                 const data = await response.json();
 
-                // if (!response.ok) {
-                //     router.push("/login");
-                //     return;
-                // }
+                if (!response.ok) {
+                    router.push("/login");
+                    return;
+                }
 
-                // if (data.data.role !== "ADMIN") {
-                //     router.push("/login");
-                //     return;
-                // }
+                if (data.data.role !== "ADMIN") {
+                    router.push("/login");
+                    return;
+                }
 
-                // setUser(data.data);
-                // setIsAuthChecked(true);
-                setUser({name: "Admin User", role: "ADMIN"});
+                setUser(data.data);
                 setIsAuthChecked(true);
 
                 getEmployee();
                 getDashboardStats();
             } catch (error) {
                 console.log(error);
-                // router.push("/login"); // TEMP: commented for design preview
-                setUser({ name: "Admin User", role: "ADMIN" }); // TEMP
-                setIsAuthChecked(true); // TEMP
+                router.push("/login");
             }
         };
 
@@ -91,14 +87,12 @@ export default function AdminDashboard() {
             const data = await response.json();
 
             if (!response.ok) {
-                // alert(data.message); // TEMP: silenced, backend offline
                 return;
             }
 
             setEmployees(data.data);
         } catch (error) {
             console.log(error);
-            // alert("Something went wrong"); // TEMP: silenced, backend offline
         }
     };
 
@@ -115,14 +109,12 @@ export default function AdminDashboard() {
             const data = await response.json();
 
             if (!response.ok) {
-                // alert(data.message); // TEMP: silenced, backend offline
                 return;
             }
 
             setStats(data.data);
         } catch (error) {
             console.log(error);
-            // alert("Something went wrong"); // TEMP: silenced, backend offline
         }
     };
 
@@ -159,7 +151,7 @@ export default function AdminDashboard() {
         }
     };
 
-    // if (!isAuthChecked) return null;
+    if (!isAuthChecked) return null;
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
