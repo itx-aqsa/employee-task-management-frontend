@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Sidebar from "../../components/Sidebar";
+import { apiFetch, ROLES } from "../../lib/api";
+import { requireRole } from "../../lib/auth";
 
 const priorityBadge = {
     HIGH: "bg-red-100 text-red-700",
@@ -17,8 +20,8 @@ const statusBadge = {
 
 export default function EmployeeDashboard() {
     const [user, setUser] = useState(null);
-    const [message, setMessage] = useState({ text: "", type: "" });
     const [tasks, setTasks] = useState([]);
+    const [message, setMessage] = useState({ text: "", type: "" });
     const [loading, setLoading] = useState(true);
     const [isAuthChecked, setIsAuthChecked] = useState(false);
 
@@ -26,70 +29,28 @@ export default function EmployeeDashboard() {
 
     useEffect(() => {
         const init = async () => {
+            // Only EMPLOYEE role is allowed here
+            const profile = await requireRole(router, [ROLES.EMPLOYEE]);
+            if (!profile) return;
+
+            setUser(profile);
+            setIsAuthChecked(true);
+
             try {
-                // Verify authentication and get profile
-                const profileResponse = await fetch(
-                    "http://localhost:5000/users/profile",
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                );
+                const { response, data } = await apiFetch("/tasks/my-tasks");
 
-                const profileData = await profileResponse.json();
-
-                if (!profileResponse.ok) {
-                    router.push("/login");
-                    return;
-                }
-
-                const role = profileData.data?.role;
-
-                if (role === "ADMIN") {
-                    router.push("/dashboard/admin");
-                    return;
-                }
-
-                if (role !== "EMPLOYEE") {
-                    router.push("/login");
-                    return;
-                }
-
-                setUser(profileData.data);
-                setIsAuthChecked(true);
-
-                // Fetch employee's tasks
-                const tasksResponse = await fetch(
-                    "http://localhost:5000/tasks/my-tasks",
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                );
-
-                const tasksData = await tasksResponse.json();
-
-                if (!tasksResponse.ok) {
-                    if (tasksResponse.status === 401) {
+                if (!response.ok) {
+                    if (response.status === 401) {
                         router.push("/login");
                         return;
                     }
-
-                    setMessage({
-                        text: tasksData.message,
-                        type: "error",
-                    });
+                    setMessage({ text: data.message || "Failed to load tasks.", type: "error" });
                     return;
                 }
 
-                setTasks(tasksData.data);
-            } catch (error) {
-                console.log(error);
-
-                setMessage({
-                    text: "Something went wrong.",
-                    type: "error",
-                });
+                setTasks(data.data || []);
+            } catch {
+                setMessage({ text: "Something went wrong.", type: "error" });
             } finally {
                 setLoading(false);
             }
@@ -100,76 +61,32 @@ export default function EmployeeDashboard() {
 
     const handleStatusChange = async (taskId, newStatus) => {
         try {
-            const response = await fetch(
-                `http://localhost:5000/tasks/${taskId}/status`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify({
-                        status: newStatus,
-                    }),
-                }
+            const { response, data } = await apiFetch(
+                `/tasks/${taskId}/status`,
+                "PUT",
+                { status: newStatus }
             );
-
-            const data = await response.json();
 
             if (!response.ok) {
                 if (response.status === 401) {
                     router.push("/login");
                     return;
                 }
-
-                setMessage({
-                    text: data.message,
-                    type: "error",
-                });
-
+                setMessage({ text: data.message || "Failed to update status.", type: "error" });
                 return;
             }
 
-            setTasks((previousTasks) =>
-                previousTasks.map((task) =>
-                    task.id === taskId
-                        ? { ...task, status: newStatus }
-                        : task
+            setTasks((prev) =>
+                prev.map((task) =>
+                    task.id === taskId ? { ...task, status: newStatus } : task
                 )
             );
 
-            setMessage({
-                text: "Task status updated successfully.",
-                type: "success",
-            });
-
-            setTimeout(() => {
-                setMessage({
-                    text: "",
-                    type: "",
-                });
-            }, 2500);
-        } catch (error) {
-            console.log(error);
-
-            setMessage({
-                text: "Something went wrong.",
-                type: "error",
-            });
+            setMessage({ text: "Task status updated successfully.", type: "success" });
+            setTimeout(() => setMessage({ text: "", type: "" }), 2500);
+        } catch {
+            setMessage({ text: "Something went wrong.", type: "error" });
         }
-    };
-
-    const handleLogout = async () => {
-        try {
-            await fetch("http://localhost:5000/users/logout", {
-                method: "POST",
-                credentials: "include",
-            });
-        } catch (error) {
-            console.log(error);
-        }
-
-        router.push("/login");
     };
 
     const taskCounts = {
@@ -183,143 +100,43 @@ export default function EmployeeDashboard() {
 
     return (
         <div className="min-h-screen bg-slate-50 flex">
-            {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-slate-100 flex flex-col fixed h-full">
-                <div className="p-6 border-b border-slate-100">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
-                            <span className="text-white font-bold text-sm">
-                                TM
-                            </span>
-                        </div>
+            <Sidebar role={ROLES.EMPLOYEE} user={user} />
 
-                        <div>
-                            <p className="font-semibold text-slate-800 text-sm">
-                                TaskManager
-                            </p>
-
-                            <p className="text-xs text-slate-400">
-                                Employee Portal
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <nav className="flex-1 p-4 space-y-1">
-                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 font-medium text-sm">
-                        <span>🏠</span> Dashboard
-                    </div>
-
-                    <button
-                        onClick={() =>
-                            router.push("/dashboard/employee/kanban")
-                        }
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors text-left"
-                    >
-                        <span>📋</span> Kanban Board
-                    </button>
-                </nav>
-
-                <div className="p-4 border-t border-slate-100">
-                    {user && (
-                        <div className="flex items-center gap-3 mb-3 px-1">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
-                                {user.name?.charAt(0).toUpperCase()}
-                            </div>
-
-                            <div className="overflow-hidden">
-                                <p className="text-sm font-medium text-slate-800 truncate">
-                                    {user.name}
-                                </p>
-
-                                <p className="text-xs text-slate-400 truncate">
-                                    {user.email}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 text-sm font-medium transition-colors"
-                    >
-                        <span>🚪</span> Logout
-                    </button>
-                </div>
-            </aside>
-
-            {/* Main */}
             <main className="flex-1 ml-64 p-8">
                 {/* Header */}
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900">
-                            My Dashboard
-                        </h1>
-
+                        <h1 className="text-2xl font-bold text-slate-900">My Dashboard</h1>
                         <p className="text-slate-500 mt-1">
-                            {user
-                                ? `Welcome back, ${user.name}`
-                                : "Loading..."}
+                            {user ? `Welcome back, ${user.name}` : "Loading..."}
                         </p>
                     </div>
-
                     <button
-                        onClick={() =>
-                            router.push("/dashboard/employee/kanban")
-                        }
-                        className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-colors"
+                        onClick={() => router.push("/dashboard/employee/kanban")}
+                        className="bg-teal-600 text-white px-5 py-2.5 rounded-lg hover:bg-teal-700 text-sm font-medium transition-colors"
                     >
                         Kanban Board
                     </button>
                 </div>
 
-                {/* Task stat cards */}
-                <div className="grid grid-cols-4 gap-4 mb-8">
+                {/* Stat cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     {[
-                        {
-                            label: "Total Tasks",
-                            value: taskCounts.total,
-                            color: "bg-indigo-50 text-indigo-600",
-                            icon: "📋",
-                        },
-                        {
-                            label: "Pending",
-                            value: taskCounts.pending,
-                            color: "bg-amber-50 text-amber-600",
-                            icon: "⏳",
-                        },
-                        {
-                            label: "In Progress",
-                            value: taskCounts.inProgress,
-                            color: "bg-blue-50 text-blue-600",
-                            icon: "🔄",
-                        },
-                        {
-                            label: "Completed",
-                            value: taskCounts.completed,
-                            color: "bg-green-50 text-green-600",
-                            icon: "✅",
-                        },
+                        { label: "Total Tasks", value: taskCounts.total, color: "bg-indigo-50 text-indigo-600", icon: "📋" },
+                        { label: "Pending", value: taskCounts.pending, color: "bg-amber-50 text-amber-600", icon: "⏳" },
+                        { label: "In Progress", value: taskCounts.inProgress, color: "bg-blue-50 text-blue-600", icon: "🔄" },
+                        { label: "Completed", value: taskCounts.completed, color: "bg-green-50 text-green-600", icon: "✅" },
                     ].map((s) => (
                         <div
                             key={s.label}
                             className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-3"
                         >
-                            <div
-                                className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.color}`}
-                            >
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.color}`}>
                                 {s.icon}
                             </div>
-
                             <div>
-                                <p className="text-xs text-slate-500">
-                                    {s.label}
-                                </p>
-
-                                <p className="text-2xl font-bold text-slate-900">
-                                    {s.value}
-                                </p>
+                                <p className="text-xs text-slate-500">{s.label}</p>
+                                <p className="text-2xl font-bold text-slate-900">{s.value}</p>
                             </div>
                         </div>
                     ))}
@@ -339,16 +156,11 @@ export default function EmployeeDashboard() {
                 )}
 
                 <div className="grid lg:grid-cols-3 gap-6">
-                    {/* Tasks table */}
+                    {/* Task list */}
                     <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm">
                         <div className="p-6 border-b border-slate-100">
-                            <h2 className="text-lg font-semibold text-slate-900">
-                                My Tasks
-                            </h2>
-
-                            <p className="text-sm text-slate-500 mt-0.5">
-                                Tasks assigned to you
-                            </p>
+                            <h2 className="text-lg font-semibold text-slate-900">My Tasks</h2>
+                            <p className="text-sm text-slate-500 mt-0.5">Tasks assigned to you</p>
                         </div>
 
                         {loading ? (
@@ -366,78 +178,42 @@ export default function EmployeeDashboard() {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-slate-100 bg-slate-50">
-                                            <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                                                Title
-                                            </th>
-
-                                            <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                                                Priority
-                                            </th>
-
-                                            <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                                                Status
-                                            </th>
+                                            <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Title</th>
+                                            <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Priority</th>
+                                            <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
                                         </tr>
                                     </thead>
-
                                     <tbody>
                                         {tasks.map((task) => (
-                                            <tr
-                                                key={task.id}
-                                                className="border-b border-slate-50 hover:bg-slate-50 transition-colors"
-                                            >
+                                            <tr key={task.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
                                                 <td className="px-6 py-4">
-                                                    <p className="font-medium text-slate-800">
-                                                        {task.title}
-                                                    </p>
-
+                                                    <p className="font-medium text-slate-800">{task.title}</p>
                                                     {task.description && (
                                                         <p className="text-xs text-slate-400 mt-0.5 truncate max-w-xs">
                                                             {task.description}
                                                         </p>
                                                     )}
                                                 </td>
-
                                                 <td className="px-6 py-4">
                                                     <span
                                                         className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                                                            priorityBadge[
-                                                                task.priority
-                                                            ] ||
-                                                            "bg-slate-100 text-slate-600"
+                                                            priorityBadge[task.priority] || "bg-slate-100 text-slate-600"
                                                         }`}
                                                     >
                                                         {task.priority}
                                                     </span>
                                                 </td>
-
                                                 <td className="px-6 py-4">
                                                     <select
                                                         value={task.status}
-                                                        onChange={(e) =>
-                                                            handleStatusChange(
-                                                                task.id,
-                                                                e.target.value
-                                                            )
-                                                        }
+                                                        onChange={(e) => handleStatusChange(task.id, e.target.value)}
                                                         className={`text-xs font-semibold px-2.5 py-1.5 rounded-full border-0 outline-none cursor-pointer ${
-                                                            statusBadge[
-                                                                task.status
-                                                            ] ||
-                                                            "bg-slate-100 text-slate-600"
+                                                            statusBadge[task.status] || "bg-slate-100 text-slate-600"
                                                         }`}
                                                     >
-                                                        <option value="PENDING">
-                                                            Pending
-                                                        </option>
-
-                                                        <option value="IN_PROGRESS">
-                                                            In Progress
-                                                        </option>
-
-                                                        <option value="COMPLETED">
-                                                            Completed
-                                                        </option>
+                                                        <option value="PENDING">Pending</option>
+                                                        <option value="IN_PROGRESS">In Progress</option>
+                                                        <option value="COMPLETED">Completed</option>
                                                     </select>
                                                 </td>
                                             </tr>
@@ -450,47 +226,26 @@ export default function EmployeeDashboard() {
 
                     {/* Profile card */}
                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 h-fit">
-                        <h2 className="text-lg font-semibold text-slate-900 mb-4">
-                            My Profile
-                        </h2>
-
+                        <h2 className="text-lg font-semibold text-slate-900 mb-4">My Profile</h2>
                         {user && (
                             <div className="space-y-4">
                                 <div className="flex items-center justify-center mb-6">
-                                    <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-2xl">
-                                        {user.name
-                                            ?.charAt(0)
-                                            .toUpperCase()}
+                                    <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold text-2xl">
+                                        {user.name?.charAt(0).toUpperCase()}
                                     </div>
                                 </div>
-
                                 <div className="space-y-3">
                                     <div className="bg-slate-50 rounded-xl p-3">
-                                        <p className="text-xs text-slate-400 mb-0.5">
-                                            Full Name
-                                        </p>
-
-                                        <p className="text-sm font-medium text-slate-800">
-                                            {user.name}
-                                        </p>
+                                        <p className="text-xs text-slate-400 mb-0.5">Full Name</p>
+                                        <p className="text-sm font-medium text-slate-800">{user.name}</p>
                                     </div>
-
                                     <div className="bg-slate-50 rounded-xl p-3">
-                                        <p className="text-xs text-slate-400 mb-0.5">
-                                            Email
-                                        </p>
-
-                                        <p className="text-sm font-medium text-slate-800">
-                                            {user.email}
-                                        </p>
+                                        <p className="text-xs text-slate-400 mb-0.5">Email</p>
+                                        <p className="text-sm font-medium text-slate-800">{user.email}</p>
                                     </div>
-
                                     <div className="bg-slate-50 rounded-xl p-3">
-                                        <p className="text-xs text-slate-400 mb-0.5">
-                                            Role
-                                        </p>
-
-                                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700">
+                                        <p className="text-xs text-slate-400 mb-0.5">Role</p>
+                                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-100 text-teal-700">
                                             {user.role}
                                         </span>
                                     </div>

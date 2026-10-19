@@ -3,43 +3,36 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import KanbanBoard from "../../../components/KanbanBoard";
+import Sidebar from "../../../components/Sidebar";
+import { apiFetch, ROLES } from "../../../lib/api";
+import { requireRole } from "../../../lib/auth";
 
 export default function EmployeeKanbanPage() {
     const [user, setUser] = useState(null);
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
+    const [isAuthChecked, setIsAuthChecked] = useState(false);
 
     const router = useRouter();
 
     useEffect(() => {
         const init = async () => {
+            const profile = await requireRole(router, [ROLES.EMPLOYEE]);
+            if (!profile) return;
+
+            setUser(profile);
+            setIsAuthChecked(true);
+
             try {
-                const profileRes = await fetch(
-                    "http://localhost:5000/users/profile",
-                    { credentials: "include" }
-                );
-                const profileData = await profileRes.json();
-
-                if (!profileRes.ok || profileData.data?.role !== "EMPLOYEE") {
-                    router.push("/login");
+                const { response, data } = await apiFetch("/tasks/my-tasks");
+                if (!response.ok) {
+                    setMessage(data.message || "Failed to load tasks.");
                     return;
                 }
-                setUser(profileData.data);
-
-                const tasksRes = await fetch(
-                    "http://localhost:5000/tasks/my-tasks",
-                    { credentials: "include" }
-                );
-                const tasksData = await tasksRes.json();
-                if (!tasksRes.ok) {
-                    setMessage(tasksData.message);
-                    return;
-                }
-                setTasks(tasksData.data);
-            } catch (error) {
-                console.log(error);
-                setMessage("Something went wrong");
+                setTasks(data.data || []);
+            } catch {
+                setMessage("Something went wrong.");
             } finally {
                 setLoading(false);
             }
@@ -49,117 +42,70 @@ export default function EmployeeKanbanPage() {
     }, [router]);
 
     const handleStatusChange = async (taskId, newStatus) => {
-        const oldTask = tasks.find((task) => task.id === taskId);
-        if(!oldTask) {
-            return;
-        }
+        const oldTask = tasks.find((t) => t.id === taskId);
+        if (!oldTask) return;
 
         const oldStatus = oldTask.status;
+
+        // Optimistic update
         setTasks((prev) =>
-            prev.map((task) => (
-                task.id === taskId ? 
-                { ...task, status: newStatus } : task)
-            )
+            prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
         );
 
         try {
-            const res = await fetch(
-                `http://localhost:5000/tasks/${taskId}/status`,
-                {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ status: newStatus }),
-                }
+            const { response, data } = await apiFetch(
+                `/tasks/${taskId}/status`,
+                "PUT",
+                { status: newStatus }
             );
 
-            const data = await res.json();
-            if (!res.ok) {
-                setMessage(data.message || "Failed to update task status");
-                
+            if (!response.ok) {
+                setMessage(data.message || "Failed to update task status.");
+                // Roll back
                 setTasks((prev) =>
-                    prev.map((task) =>
-                        task.id === taskId ? 
-                        { ...task, status: task._prevStatus || task.status } : task
-                    )
+                    prev.map((t) => (t.id === taskId ? { ...t, status: oldStatus } : t))
                 );
                 return;
             }
+
             setMessage("");
-        } catch (error) {
-            console.log(error);
-            setMessage("Failed to update task status");
-
-            setTasks((prev) => 
-                prev.map((task) => 
-                    task.id === taskId ?
-                    {...task, status: oldStatus} : task
-                )
-            )
+        } catch {
+            setMessage("Failed to update task status.");
+            setTasks((prev) =>
+                prev.map((t) => (t.id === taskId ? { ...t, status: oldStatus } : t))
+            );
         }
     };
 
-    const handleLogout = async () => {
-        try {
-            await fetch("http://localhost:5000/users/logout", {
-                method: "POST",
-                credentials: "include",
-            });
-        } catch (error) {
-            console.log(error);
-        }
-        router.push("/login");
-    };
+    if (!isAuthChecked) return null;
 
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-slate-50 flex">
+            <Sidebar role={ROLES.EMPLOYEE} user={user} />
 
+            <main className="flex-1 ml-64 p-8">
                 {/* Header */}
-                <div className="flex items-center justify-between bg-white rounded-xl shadow p-6 mb-6">
+                <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-800">
-                            My Kanban Board
-                        </h1>
-                        {user && (
-                            <p className="text-gray-500 mt-1">
-                                Welcome back,{" "}
-                                <span className="font-semibold text-gray-700">
-                                    {user.name}
-                                </span>
-                            </p>
-                        )}
+                        <h1 className="text-2xl font-bold text-slate-900">My Kanban Board</h1>
+                        <p className="text-slate-500 mt-1">
+                            Drag cards to update their status
+                        </p>
                     </div>
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => router.push("/dashboard/employee")}
-                            className="bg-gray-200 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-                        >
-                            List View
-                        </button>
-                        <button
-                            onClick={handleLogout}
-                            className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition-colors"
-                        >
-                            Logout
-                        </button>
-                    </div>
+                    <button
+                        onClick={() => router.push("/dashboard/employee")}
+                        className="bg-slate-200 text-slate-700 px-5 py-2.5 rounded-lg hover:bg-slate-300 text-sm font-medium transition-colors"
+                    >
+                        List View
+                    </button>
                 </div>
 
                 {message && (
-                    <p className="text-center mb-4 text-sm text-red-500">
-                        {message}
-                    </p>
+                    <p className="text-sm text-red-500 mb-4">{message}</p>
                 )}
 
-                {/* Hint */}
-                <p className="text-sm text-gray-500 mb-4">
-                    Drag and drop cards to update their status.
-                </p>
-
-                {/* Board */}
                 {loading ? (
-                    <div className="text-center py-20 text-gray-500">
+                    <div className="text-center py-20 text-slate-400">
                         Loading tasks...
                     </div>
                 ) : (
@@ -169,7 +115,7 @@ export default function EmployeeKanbanPage() {
                         showAssignee={false}
                     />
                 )}
-            </div>
+            </main>
         </div>
     );
 }
