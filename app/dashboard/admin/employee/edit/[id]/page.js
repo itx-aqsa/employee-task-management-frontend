@@ -25,6 +25,17 @@ export default function EditEmployee() {
     useEffect(() => {
         const getEmployee = async () => {
             try {
+                // Verify session and role first
+                const profileRes = await fetch("http://localhost:5000/users/profile", {
+                    method: "GET",
+                    credentials: "include",
+                });
+                const profileData = await profileRes.json();
+                if (!profileRes.ok || profileData.data?.role !== "ADMIN") {
+                    router.push("/login");
+                    return;
+                }
+
                 const response = await fetch(
                     `http://localhost:5000/users/${params.id}`,
                     {

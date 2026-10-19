@@ -26,6 +26,17 @@ export default function EditTaskPage() {
     useEffect(() => {
         const getData = async () => {
             try {
+                // Verify session and role first
+                const profileRes = await fetch("http://localhost:5000/users/profile", {
+                    method: "GET",
+                    credentials: "include",
+                });
+                const profileData = await profileRes.json();
+                if (!profileRes.ok || profileData.data?.role !== "ADMIN") {
+                    router.push("/login");
+                    return;
+                }
+
                 const [employeeResponse, taskResponse] = await Promise.all([
                     fetch("http://localhost:5000/users/employees", {
                         method: "GET",
