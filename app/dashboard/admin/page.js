@@ -33,7 +33,14 @@ export default function AdminDashboard() {
                     return;
                 }
 
-                if (data.data.role !== "ADMIN") {
+                const role = data.data?.role;
+
+                if (role === "EMPLOYEE") {
+                    router.push("/dashboard/employee");
+                    return;
+                }
+
+                if (role !== "ADMIN") {
                     router.push("/login");
                     return;
                 }
