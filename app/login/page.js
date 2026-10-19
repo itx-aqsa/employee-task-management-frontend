@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
+import { apiFetch, ROLE_DASHBOARD, ROLES } from "../lib/api";
 
 export default function LoginPage() {
     const [formData, setFormData] = useState({ email: "", password: "" });
@@ -22,34 +23,26 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const response = await fetch(
-                "http://localhost:5000/users/login",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify(formData),
-                }
+            const { response, data } = await apiFetch(
+                "/users/login",
+                "POST",
+                formData
             );
-
-            const data = await response.json();
 
             if (!response.ok) {
                 setError(data.detail || data.message || "Invalid email or password.");
                 return;
             }
 
-            if (data.data.role === "ADMIN") {
-                router.push("/dashboard/admin");
-            } else if (data.data.role === "EMPLOYEE") {
-                router.push("/dashboard/employee");
+            const role = data.data?.role;
+            const destination = ROLE_DASHBOARD[role];
+
+            if (destination) {
+                router.push(destination);
             } else {
                 setError("Invalid user role. Please contact support.");
             }
-        } catch (error) {
-            console.log(error);
+        } catch {
             setError("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
