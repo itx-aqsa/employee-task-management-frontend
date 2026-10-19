@@ -6,19 +6,20 @@ import Link from "next/link";
 
 export default function LoginPage() {
     const [formData, setFormData] = useState({ email: "", password: "" });
-    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
     const router = useRouter();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        setError("");
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setMessage("");
+        setError("");
 
         try {
             const response = await fetch(
@@ -36,7 +37,7 @@ export default function LoginPage() {
             const data = await response.json();
 
             if (!response.ok) {
-                setMessage(data.message);
+                setError(data.detail || data.message || "Invalid email or password.");
                 return;
             }
 
@@ -45,11 +46,11 @@ export default function LoginPage() {
             } else if (data.data.role === "EMPLOYEE") {
                 router.push("/dashboard/employee");
             } else {
-                setMessage("Invalid user role");
+                setError("Invalid user role. Please contact support.");
             }
         } catch (error) {
             console.log(error);
-            setMessage("Something went wrong. Please try again.");
+            setError("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -108,9 +109,9 @@ export default function LoginPage() {
                             />
                         </div>
 
-                        {message && (
+                        {error && (
                             <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
-                                {message}
+                                {error}
                             </div>
                         )}
 
