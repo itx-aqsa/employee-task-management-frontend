@@ -8,13 +8,10 @@ import { requireRole } from "../../../../../lib/auth";
 
 export default function AssignAdminPage() {
     const [user, setUser] = useState(null);
-    const [agency, setAgency] = useState(null);
-    const [admins, setAdmins] = useState([]);
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        password: "",
-    });
+    // Admins created during this session — tracked locally because the backend
+    // does not yet expose a filtered GET /users?role=ADMIN endpoint.
+    const [createdAdmins, setCreatedAdmins] = useState([]);
+    const [formData, setFormData] = useState({ name: "", email: "", password: "" });
     const [message, setMessage] = useState({ text: "", type: "" });
     const [loading, setLoading] = useState(false);
     const [isAuthChecked, setIsAuthChecked] = useState(false);
@@ -29,40 +26,12 @@ export default function AssignAdminPage() {
             if (!profile) return;
             setUser(profile);
             setIsAuthChecked(true);
-            fetchAgency();
-            fetchAdmins();
         };
         init();
-    }, [router, agencyId]);
+    }, [router]);
 
-    const fetchAgency = async () => {
-        try {
-            const { response, data } = await apiFetch(`/agencies/${agencyId}`);
-            if (response.ok) {
-                setAgency(data.data || null);
-            }
-        } catch {
-            // non-fatal — the page still renders the form
-        }
-    };
-
-    const fetchAdmins = async () => {
-        try {
-            // Fetch users belonging to this agency who have the ADMIN role.
-            const { response, data } = await apiFetch(
-                `/users?agencyId=${agencyId}&role=ADMIN`
-            );
-            if (response.ok) {
-                setAdmins(data.data || []);
-            }
-        } catch {
-            // non-fatal
-        }
-    };
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    const handleChange = (e) =>
+        setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -70,6 +39,9 @@ export default function AssignAdminPage() {
         setMessage({ text: "", type: "" });
 
         try {
+            // Payload matches the backend userSchema exactly:
+            // { name, email, password, role? }
+            // agencyId is NOT in the schema so it is intentionally omitted.
             const body = {
                 name: formData.name.trim(),
                 email: formData.email.trim(),
@@ -80,7 +52,7 @@ export default function AssignAdminPage() {
             const { response, data } = await apiFetch("/users", "POST", body);
 
             if (!response.ok) {
-                // surface the exact backend message (Zod field error, duplicate email, etc.)
+                // Surface the exact Zod / business-logic message from the backend.
                 const errText =
                     data?.message ||
                     data?.detail ||
@@ -89,12 +61,23 @@ export default function AssignAdminPage() {
                 return;
             }
 
+            const newAdmin = data.data; // { id, name, email, role, ... }
+
+            // Append to the session-local admin list so the panel refreshes.
+            setCreatedAdmins((prev) => [
+                ...prev,
+                {
+                    id: newAdmin?.id ?? Date.now(),
+                    name: formData.name.trim(),
+                    email: formData.email.trim(),
+                },
+            ]);
+
             setMessage({
-                text: `Admin "${formData.name}" created and assigned to agency.`,
+                text: `Admin "${formData.name.trim()}" created successfully.`,
                 type: "success",
             });
             setFormData({ name: "", email: "", password: "" });
-            fetchAdmins();
         } catch (err) {
             setMessage({
                 text: err?.message || "Something went wrong. Please try again.",
@@ -120,38 +103,19 @@ export default function AssignAdminPage() {
                     >
                         ← Back to Agencies
                     </button>
-
-                    {agency ? (
-                        <div className="flex items-center gap-4 mb-1">
-                            <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-700 font-bold text-lg">
-                                {agency.name?.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-bold text-slate-900">
-                                    {agency.name}
-                                </h1>
-                                <p className="text-slate-500 text-sm">
-                                    Assign an Admin to this agency
-                                </p>
-                            </div>
-                        </div>
-                    ) : (
-                        <>
-                            <h1 className="text-2xl font-bold text-slate-900">
-                                Assign Agency Admin
-                            </h1>
-                            <p className="text-slate-500 mt-1">
-                                Create an admin account tied to this agency
-                            </p>
-                        </>
-                    )}
+                    <h1 className="text-2xl font-bold text-slate-900">
+                        Create Agency Admin
+                    </h1>
+                    <p className="text-slate-500 mt-1">
+                        Create a new user account with the Admin role
+                    </p>
                 </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    {/* Create admin form */}
+                    {/* ── Form ── */}
                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
                         <h2 className="text-base font-semibold text-slate-800 mb-5">
-                            Create Agency Admin
+                            Admin Details
                         </h2>
 
                         <form onSubmit={handleSubmit} className="space-y-5">
@@ -167,6 +131,7 @@ export default function AssignAdminPage() {
                                     onChange={handleChange}
                                     placeholder="Enter admin's full name"
                                     required
+                                    minLength={2}
                                     className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
                                 />
                             </div>
@@ -181,7 +146,7 @@ export default function AssignAdminPage() {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    placeholder="admin@agency.com"
+                                    placeholder="admin@example.com"
                                     required
                                     className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
                                 />
@@ -199,21 +164,22 @@ export default function AssignAdminPage() {
                                     onChange={handleChange}
                                     placeholder="••••••••"
                                     required
+                                    minLength={6}
                                     className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
                                 />
                             </div>
 
-                            {/* Role info pill */}
+                            {/* Info pill */}
                             <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
-                                <span className="text-indigo-500">ℹ️</span>
+                                <span>ℹ️</span>
                                 <p className="text-xs text-indigo-700">
                                     This account will be created with the{" "}
-                                    <strong>ADMIN</strong> role and automatically
-                                    scoped to this agency.
+                                    <strong>ADMIN</strong> role. The admin can then log in
+                                    and manage their agency.
                                 </p>
                             </div>
 
-                            {/* Feedback */}
+                            {/* Feedback banner */}
                             {message.text && (
                                 <div
                                     className={`text-sm rounded-xl px-4 py-3 border ${
@@ -248,28 +214,31 @@ export default function AssignAdminPage() {
                         </form>
                     </div>
 
-                    {/* Existing admins panel */}
+                    {/* ── Admins created this session ── */}
                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                         <div className="px-6 py-5 border-b border-slate-100">
                             <h2 className="text-base font-semibold text-slate-800">
-                                Current Admins
+                                Created This Session
                             </h2>
                             <p className="text-xs text-slate-400 mt-0.5">
-                                Admins already assigned to this agency
+                                Admin accounts created during this visit
                             </p>
                         </div>
 
-                        {admins.length === 0 ? (
+                        {createdAdmins.length === 0 ? (
                             <div className="text-center py-16 text-slate-400">
                                 <p className="text-3xl mb-2">👤</p>
-                                <p className="text-sm">No admins assigned yet</p>
+                                <p className="text-sm">No admins created yet</p>
+                                <p className="text-xs mt-1">
+                                    Use the form to create one
+                                </p>
                             </div>
                         ) : (
                             <ul className="divide-y divide-slate-50">
-                                {admins.map((admin) => (
+                                {createdAdmins.map((admin) => (
                                     <li
                                         key={admin.id}
-                                        className="flex items-center gap-3 px-6 py-4 hover:bg-slate-50 transition-colors"
+                                        className="flex items-center gap-3 px-6 py-4"
                                     >
                                         <div className="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-700 font-bold text-sm flex-shrink-0">
                                             {admin.name?.charAt(0).toUpperCase()}
@@ -282,8 +251,8 @@ export default function AssignAdminPage() {
                                                 {admin.email}
                                             </p>
                                         </div>
-                                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 flex-shrink-0">
-                                            ADMIN
+                                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 flex-shrink-0">
+                                            ✓ Created
                                         </span>
                                     </li>
                                 ))}
