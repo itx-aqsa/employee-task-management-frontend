@@ -1,9 +1,15 @@
 // Shared auth helpers used by every protected page.
 
-import { apiFetch, ROLES, ROLE_DASHBOARD } from "./api";
+import { apiFetch, ROLES, ROLE_DASHBOARD, setStoredAgencyId, clearStoredAgencyId } from "./api";
 
-// Verifies the session, enforces role access, and redirects if needed.
-// Returns the profile object on success, or null if redirected.
+/**
+ * Verify the session, enforce role access, and redirect if needed.
+ * Returns the profile object on success, or null if redirected.
+ *
+ * Side-effect: if the profile includes agencyId (once the backend exposes it),
+ * it is cached in localStorage so every subsequent apiFetch automatically
+ * sends the X-Agency-Id header without each page having to pass it manually.
+ */
 export async function requireRole(router, allowedRoles) {
     try {
         const { response, data } = await apiFetch("/users/profile");
@@ -23,6 +29,17 @@ export async function requireRole(router, allowedRoles) {
             return null;
         }
 
+        // Persist agencyId so apiFetch sends X-Agency-Id automatically.
+        // For SUPER_ADMIN and EMPLOYEE this will be null/undefined — that's
+        // correct; clearStoredAgencyId ensures no stale value lingers.
+        if (profile?.agencyId) {
+            setStoredAgencyId(profile.agencyId);
+        } else {
+            // SUPER_ADMIN / EMPLOYEE: clear any leftover value from a
+            // previous admin session on the same browser.
+            clearStoredAgencyId();
+        }
+
         return profile;
     } catch {
         router.push("/login");
@@ -36,5 +53,7 @@ export async function logout(router) {
     } catch {
         // redirect regardless
     }
+    // Clear the cached agency so the next login starts fresh.
+    clearStoredAgencyId();
     router.push("/login");
 }
