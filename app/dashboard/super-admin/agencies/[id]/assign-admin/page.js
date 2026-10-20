@@ -77,20 +77,15 @@ export default function AssignAdminPage() {
                 role: ROLES.ADMIN,
             };
 
-            // Pass agencyId via the X-Agency-Id header so the backend
-            // automatically scopes the new user to this agency.
-            const { response, data } = await apiFetch(
-                "/users",
-                "POST",
-                body,
-                agencyId
-            );
+            const { response, data } = await apiFetch("/users", "POST", body);
 
             if (!response.ok) {
-                setMessage({
-                    text: data.message || "Failed to create admin.",
-                    type: "error",
-                });
+                // surface the exact backend message (Zod field error, duplicate email, etc.)
+                const errText =
+                    data?.message ||
+                    data?.detail ||
+                    `Request failed (${response.status})`;
+                setMessage({ text: errText, type: "error" });
                 return;
             }
 
@@ -99,10 +94,10 @@ export default function AssignAdminPage() {
                 type: "success",
             });
             setFormData({ name: "", email: "", password: "" });
-            fetchAdmins(); // refresh the admin list
-        } catch {
+            fetchAdmins();
+        } catch (err) {
             setMessage({
-                text: "Something went wrong. Please try again.",
+                text: err?.message || "Something went wrong. Please try again.",
                 type: "error",
             });
         } finally {
