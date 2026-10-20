@@ -55,18 +55,21 @@ export default function TasksPage() {
                 null,
                 agencyId
             );
+            console.log("[fetchTasks] status:", response.status, "| raw response:", data, "| resolved array:", data.data);
 
             if (!response.ok) {
                 if (response.status === 401) {
                     router.push("/login");
                     return;
                 }
+                console.warn("[fetchTasks] non-OK response:", response.status, data);
                 setMessage(data.message || "Failed to load tasks.");
                 return;
             }
 
             setTasks(data.data || []);
-        } catch {
+        } catch (error) {
+            console.error("[fetchTasks] network/parse error:", error);
             setMessage("Something went wrong.");
         }
     };
