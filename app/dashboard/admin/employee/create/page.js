@@ -38,11 +38,25 @@ export default function CreateEmployee() {
 
         try {
             const agencyId = user?.agencyId ?? null;
+
+            if (!agencyId) {
+                setMessage({ text: "Unable to determine your agency. Please re-login.", type: "error" });
+                return;
+            }
+
+            const body = {
+                name: formData.name.trim(),
+                email: formData.email.trim(),
+                password: formData.password,
+                role: "EMPLOYEE",
+                agencyId,
+            };
+
             const { response, data } = await apiFetch(
                 "/users",
                 "POST",
-                formData,
-                agencyId
+                body,
+                agencyId  // also sets X-Agency-Id header
             );
 
             if (!response.ok) {
@@ -79,6 +93,16 @@ export default function CreateEmployee() {
 
                 <div className="max-w-xl bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
                     <form onSubmit={handleSubmit} className="space-y-5">
+                        {/* Agency context */}
+                        {user?.agencyId && (
+                            <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
+                                <span>🏢</span>
+                                <p className="text-xs text-indigo-700">
+                                    This employee will be added to your agency{" "}
+                                    <strong>(ID: {user.agencyId})</strong>.
+                                </p>
+                            </div>
+                        )}
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">
                                 Full Name

@@ -40,12 +40,15 @@ export default function AssignAdminPage() {
                 name: formData.name.trim(),
                 email: formData.email.trim(),
                 password: formData.password,
+                role: "ADMIN",
+                agencyId: Number(agencyId),
             };
 
             const { response, data } = await apiFetch(
                 `/agencies/${agencyId}/admins`,
                 "POST",
-                body
+                body,
+                agencyId  // sets X-Agency-Id header for backend middleware
             );
 
             if (!response.ok) {

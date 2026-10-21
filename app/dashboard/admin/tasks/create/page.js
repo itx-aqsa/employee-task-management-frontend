@@ -71,31 +71,49 @@ export default function CreateTask() {
 
         try {
             const agencyId = user?.agencyId ?? null;
-            const { response, data } = await apiFetch(
-                "/tasks",
-                "POST",
-                {
-                    title: formData.title,
-                    description: formData.description,
-                    priority: formData.priority,
-                    userId: Number(formData.userId),
-                },
-                agencyId
-            );
+
+            if (!agencyId) {
+                setMessage({ text: "Unable to determine your agency. Please re-login.", type: "error" });
+                return;
+            }
+
+            const body = {
+                title: formData.title.trim(),
+                description: formData.description.trim(),
+                priority: formData.priority,
+                userId: formData.userId, // UUID string — must NOT be cast to Number
+                agencyId,
+            };
+
+            console.log("[CreateTask] submitting body:", body);
+
+            const { response, data } = await apiFetch("/tasks", "POST", body, agencyId);
+
+            console.log("[CreateTask] response status:", response.status, "body:", data);
 
             if (!response.ok) {
                 if (response.status === 401) {
                     router.push("/login");
                     return;
                 }
-                setMessage({ text: data.message || "Failed to create task.", type: "error" });
+                // Surface whatever the backend actually returned
+                const errText =
+                    data?.message ||
+                    data?.error ||
+                    data?.detail ||
+                    (Array.isArray(data?.errors)
+                        ? data.errors.map((e) => e.message ?? e).join(", ")
+                        : null) ||
+                    `Request failed with status ${response.status}`;
+                setMessage({ text: errText, type: "error" });
                 return;
             }
 
             setMessage({ text: "Task created successfully!", type: "success" });
             setFormData({ title: "", description: "", priority: "MEDIUM", userId: "" });
-        } catch {
-            setMessage({ text: "Something went wrong.", type: "error" });
+        } catch (err) {
+            console.error("[CreateTask] unexpected error:", err);
+            setMessage({ text: err?.message || "Something went wrong.", type: "error" });
         } finally {
             setLoading(false);
         }
