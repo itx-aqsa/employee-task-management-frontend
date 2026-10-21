@@ -9,6 +9,7 @@ import { ROLES } from "../lib/api";
 const SUPER_ADMIN_LINKS = [
     { href: "/dashboard/super-admin", icon: "🏠", label: "Overview" },
     { href: "/dashboard/super-admin/agencies", icon: "🏢", label: "Agencies" },
+    { href: "/dashboard/super-admin/agencies/create", icon: "➕", label: "New Agency" },
 ];
 
 const ADMIN_LINKS = [
@@ -100,7 +101,9 @@ export default function Sidebar({ role, user }) {
                             href={href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-colors ${
                                 isActive
-                                    ? "bg-indigo-50 text-indigo-700"
+                                    ? role === ROLES.SUPER_ADMIN
+                                        ? "bg-purple-50 text-purple-700"
+                                        : "bg-indigo-50 text-indigo-700"
                                     : "text-slate-600 hover:bg-slate-50"
                             }`}
                         >

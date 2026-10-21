@@ -42,11 +42,14 @@ export default function AdminDashboard() {
                 null,
                 agencyId
             );
+            console.log("[fetchEmployees] status:", response.status, "| raw response:", data, "| resolved array:", data.data);
             if (response.ok) {
                 setEmployees(data.data || []);
+            } else {
+                console.warn("[fetchEmployees] non-OK response:", response.status, data);
             }
         } catch (error) {
-            console.error("Failed to fetch employees:", error);
+            console.error("[fetchEmployees] network/parse error:", error);
         }
     };
 
@@ -58,11 +61,14 @@ export default function AdminDashboard() {
                 null,
                 agencyId
             );
+            console.log("[fetchDashboardStats] status:", response.status, "| raw response:", data);
             if (response.ok && data.data) {
                 setStats(data.data);
+            } else if (!response.ok) {
+                console.warn("[fetchDashboardStats] non-OK response:", response.status, data);
             }
         } catch (error) {
-            console.error("Failed to fetch stats:", error);
+            console.error("[fetchDashboardStats] network/parse error:", error);
         }
     };
 

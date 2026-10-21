@@ -1,9 +1,5 @@
-// Shared auth helpers used by every protected page.
+import { apiFetch, ROLES, ROLE_DASHBOARD, setStoredAgencyId, clearStoredAgencyId } from "./api";
 
-import { apiFetch, ROLES, ROLE_DASHBOARD } from "./api";
-
-// Verifies the session, enforces role access, and redirects if needed.
-// Returns the profile object on success, or null if redirected.
 export async function requireRole(router, allowedRoles) {
     try {
         const { response, data } = await apiFetch("/users/profile");
@@ -17,10 +13,16 @@ export async function requireRole(router, allowedRoles) {
         const role = profile?.role;
 
         if (!allowedRoles.includes(role)) {
-            // Send to the user's own dashboard, or /login for unknown roles.
-            const destination = ROLE_DASHBOARD[role] || "/login";
-            router.push(destination);
+            router.push(ROLE_DASHBOARD[role] || "/login");
             return null;
+        }
+
+        // Cache agencyId so X-Agency-Id is sent on all subsequent requests.
+        // SUPER_ADMIN has no agency — clear any stale value.
+        if (profile?.agencyId) {
+            setStoredAgencyId(profile.agencyId);
+        } else {
+            clearStoredAgencyId();
         }
 
         return profile;
@@ -36,5 +38,6 @@ export async function logout(router) {
     } catch {
         // redirect regardless
     }
+    clearStoredAgencyId();
     router.push("/login");
 }

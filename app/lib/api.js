@@ -1,5 +1,3 @@
-// Central API client — base URL, role constants, and shared fetch helpers.
-
 export const BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -9,12 +7,32 @@ export const ROLES = {
     EMPLOYEE: "EMPLOYEE",
 };
 
-// Maps each role to its home dashboard route.
 export const ROLE_DASHBOARD = {
     [ROLES.SUPER_ADMIN]: "/dashboard/super-admin",
     [ROLES.ADMIN]: "/dashboard/admin",
     [ROLES.EMPLOYEE]: "/dashboard/employee",
 };
+
+const AGENCY_KEY = "x_agency_id";
+
+export function setStoredAgencyId(id) {
+    if (typeof window === "undefined") return;
+    if (id != null) {
+        localStorage.setItem(AGENCY_KEY, String(id));
+    } else {
+        localStorage.removeItem(AGENCY_KEY);
+    }
+}
+
+export function getStoredAgencyId() {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(AGENCY_KEY) ?? null;
+}
+
+export function clearStoredAgencyId() {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem(AGENCY_KEY);
+}
 
 export function buildOptions(method = "GET", body = null, agencyId = null) {
     const headers = {};
@@ -23,9 +41,9 @@ export function buildOptions(method = "GET", body = null, agencyId = null) {
         headers["Content-Type"] = "application/json";
     }
 
-    // X-Agency-Id scopes the request to the correct agency on the backend.
-    if (agencyId != null) {
-        headers["X-Agency-Id"] = String(agencyId);
+    const resolvedAgencyId = agencyId ?? getStoredAgencyId();
+    if (resolvedAgencyId != null) {
+        headers["X-Agency-Id"] = String(resolvedAgencyId);
     }
 
     const options = {
@@ -42,7 +60,11 @@ export function buildOptions(method = "GET", body = null, agencyId = null) {
 }
 
 export async function apiFetch(path, method = "GET", body = null, agencyId = null) {
-    const response = await fetch(`${BASE_URL}${path}`, buildOptions(method, body, agencyId));
+    const options = buildOptions(method, body, agencyId);
+    console.log(
+        `[apiFetch] ${method} ${path} | X-Agency-Id: ${options.headers["X-Agency-Id"] ?? "(none)"}`
+    );
+    const response = await fetch(`${BASE_URL}${path}`, options);
     const data = await response.json();
     return { response, data };
 }

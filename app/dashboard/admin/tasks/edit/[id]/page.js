@@ -92,7 +92,7 @@ export default function EditTaskPage() {
                     title: formData.title,
                     description: formData.description,
                     priority: formData.priority,
-                    userId: Number(formData.userId),
+                    userId: formData.userId, // UUID string — must NOT be cast to Number
                 },
                 agencyId
             );
