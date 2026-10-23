@@ -76,28 +76,29 @@ export default function CreateEmployee() {
     if (!isAuthChecked) return null;
 
     return (
-        <div className="min-h-screen bg-slate-50 flex">
-            <Sidebar role={ROLES.ADMIN} user={user} />
+        <div className="min-h-screen bg-slate-100/80 md:flex">
+            <Sidebar role={ROLES.ADMIN} user={user} adminDashboard />
 
-            <main className="flex-1 ml-64 p-8">
-                <div className="mb-8">
+            <main className="min-w-0 flex-1 px-4 pb-28 pt-6 sm:px-6 md:ml-64 md:px-8 md:pb-10 md:pt-8">
+                <div className="mx-auto max-w-7xl">
+                <div className="mb-8 border-b border-slate-200 pb-6">
                     <button
                         onClick={() => router.back()}
-                        className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1 mb-4"
+                        className="mb-4 flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-teal-700"
                     >
                         ← Back
                     </button>
-                    <h1 className="text-2xl font-bold text-slate-900">Add Employee</h1>
+                    <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Add Employee</h1>
                     <p className="text-slate-500 mt-1">Create a new employee account</p>
                 </div>
 
-                <div className="max-w-xl bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
+                <div className="mx-auto max-w-2xl rounded-[1.75rem] border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-8">
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Agency context */}
                         {user?.agencyId && (
-                            <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
+                            <div className="flex items-center gap-2 rounded-xl border border-teal-100 bg-teal-50 px-4 py-3">
                                 <span>🏢</span>
-                                <p className="text-xs text-indigo-700">
+                                <p className="text-xs text-teal-800">
                                     This employee will be added to your agency{" "}
                                     <strong>(ID: {user.agencyId})</strong>.
                                 </p>
@@ -114,7 +115,7 @@ export default function CreateEmployee() {
                                 onChange={handleChange}
                                 placeholder="Enter employee name"
                                 required
-                                className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
                             />
                         </div>
 
@@ -129,7 +130,7 @@ export default function CreateEmployee() {
                                 onChange={handleChange}
                                 placeholder="employee@example.com"
                                 required
-                                className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
                             />
                         </div>
 
@@ -144,7 +145,7 @@ export default function CreateEmployee() {
                                 onChange={handleChange}
                                 placeholder="••••••••"
                                 required
-                                className="w-full text-slate-900 placeholder:text-slate-400 border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
                             />
                         </div>
 
@@ -164,19 +165,20 @@ export default function CreateEmployee() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="rounded-xl bg-teal-700 px-6 py-3 font-semibold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-200 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                                 {loading ? "Creating..." : "Create Employee"}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => router.push("/dashboard/admin")}
-                                className="bg-slate-100 text-slate-700 px-6 py-2.5 rounded-xl font-medium hover:bg-slate-200 transition-colors"
+                                className="rounded-xl border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
                             >
                                 Cancel
                             </button>
                         </div>
                     </form>
+                </div>
                 </div>
             </main>
         </div>
