@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FiColumns, FiPlus } from "react-icons/fi";
 import Sidebar from "../../../components/Sidebar";
 import { apiFetch, ROLES } from "../../../lib/api";
 import { requireRole } from "../../../lib/auth";
@@ -104,28 +105,31 @@ export default function TasksPage() {
     if (!isAuthChecked) return null;
 
     return (
-        <div className="min-h-screen bg-slate-50 flex">
-            <Sidebar role={ROLES.ADMIN} user={user} />
+        <div className="min-h-screen bg-slate-100/80 md:flex">
+            <Sidebar role={ROLES.ADMIN} user={user} adminDashboard />
 
-            <main className="flex-1 ml-64 p-8">
-                <div className="flex items-center justify-between mb-8">
+            <main className="min-w-0 flex-1 px-4 pb-28 pt-6 sm:px-6 md:ml-64 md:px-8 md:pb-10 md:pt-8">
+                <div className="mx-auto max-w-7xl">
+                <div className="mb-8 flex flex-col gap-5 rounded-[1.75rem] bg-slate-950 px-6 py-7 text-white shadow-lg shadow-slate-900/10 sm:flex-row sm:items-end sm:justify-between sm:px-8">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900">Tasks</h1>
-                        <p className="text-slate-500 mt-1">Manage all employee tasks</p>
+                        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-300">Work management</span>
+                        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Tasks</h1>
+                        <p className="mt-1 text-sm text-slate-300">Manage all employee tasks</p>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                         <button
                             onClick={() => router.push("/dashboard/admin/tasks/kanban")}
-                            className="bg-purple-600 text-white px-5 py-2.5 rounded-lg hover:bg-purple-700 text-sm font-medium transition-colors"
+                            className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15"
                         >
+                            <FiColumns aria-hidden="true" className="h-4 w-4" />
                             Kanban View
                         </button>
                         <button
                             onClick={() => router.push("/dashboard/admin/tasks/create")}
-                            className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-700 text-sm font-medium transition-colors"
+                            className="inline-flex items-center gap-2 rounded-xl bg-orange-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-orange-300"
                         >
-                            + Create Task
+                            <FiPlus aria-hidden="true" className="h-4 w-4" /> Create Task
                         </button>
                     </div>
                 </div>
@@ -136,16 +140,16 @@ export default function TasksPage() {
                     </div>
                 )}
 
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-slate-100 bg-slate-50">
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Task</th>
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Assigned To</th>
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Priority</th>
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
-                                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
+                                    <th className="px-6 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Task</th>
+                                    <th className="px-6 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Assigned To</th>
+                                    <th className="px-6 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Priority</th>
+                                    <th className="px-6 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Status</th>
+                                    <th className="px-6 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -160,7 +164,7 @@ export default function TasksPage() {
                                     tasks.map((task) => (
                                         <tr
                                             key={task.id}
-                                            className="border-b border-slate-50 hover:bg-slate-50 transition-colors"
+                                            className="border-b border-slate-100 transition-colors hover:bg-teal-50/40"
                                         >
                                             <td className="px-6 py-4">
                                                 <p className="font-medium text-slate-800">{task.title}</p>
@@ -172,7 +176,7 @@ export default function TasksPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-xs">
+                                                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-teal-100 text-xs font-semibold text-teal-800 ring-1 ring-inset ring-teal-200/70">
                                                         {task.user?.name?.charAt(0).toUpperCase()}
                                                     </div>
                                                     <div>
@@ -195,7 +199,7 @@ export default function TasksPage() {
                                                 <div className="flex gap-2">
                                                     <button
                                                         onClick={() => router.push(`/dashboard/admin/tasks/edit/${task.id}`)}
-                                                        className="text-indigo-600 border border-indigo-200 bg-indigo-50 rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-indigo-100 transition-colors"
+                                                        className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-800 transition hover:bg-teal-100"
                                                     >
                                                         Edit
                                                     </button>
@@ -213,6 +217,7 @@ export default function TasksPage() {
                             </tbody>
                         </table>
                     </div>
+                </div>
                 </div>
             </main>
         </div>
